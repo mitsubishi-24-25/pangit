@@ -236,6 +236,9 @@
             <li class="nav-item">
                 <a class="nav-link no-link" href="#">Core-Values</a>
             </li>
+            <li class="nav-item">
+                <button onclick="logout()" class="nav-link">Logout</button>
+            </li>
         </ul>
     </div>
 
@@ -434,31 +437,43 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem("metadataData",JSON.stringify(metadataHot.getData())); 
     });
 
-    function autoSaveStudents(){
-        const boysData = boysHot.getData().map(r => ({
-            name: r[0] || '',
-            age: r[1] || '',
-            sex: r[2] || '',
-            lrn: r[3] || '',
-            parent: r[4] || '',
-            parentNumber: r[5] || '',
-            parentGmail: r[6] || ''
-        }));
-        const girlsData = girlsHot.getData().map(r => ({
-            name: r[0] || '',
-            age: r[1] || '',
-            sex: r[2] || '',
-            lrn: r[3] || '',
-            parent: r[4] || '',
-            parentNumber: r[5] || '',
-            parentGmail: r[6] || ''
-        }));
+    function autoSaveStudents() {
+    const boysData = boysHot.getData().filter(r => r[0] && r[0].trim() !== '').map(r => ({
+        name: r[0] || '',
+        age: r[1] || '',
+        sex: r[2] || '',
+        lrn: r[3] || '',
+        parent: r[4] || '',
+        parentNumber: r[5] || '',
+        parentGmail: r[6] || ''
+    }));
+
+    const girlsData = girlsHot.getData().filter(r => r[0] && r[0].trim() !== '').map(r => ({
+        name: r[0] || '',
+        age: r[1] || '',
+        sex: r[2] || '',
+        lrn: r[3] || '',
+        parent: r[4] || '',
+        parentNumber: r[5] || '',
+        parentGmail: r[6] || ''
+    }));
+
+    // ✅ Only save if there’s at least one student with a name
+    if (boysData.length > 0 || girlsData.length > 0) {
         localStorage.setItem("boysData", JSON.stringify(boysData));
         localStorage.setItem("girlsData", JSON.stringify(girlsData));
     }
+}
 
-    boysHot.addHook('afterChange', autoSaveStudents);
-    girlsHot.addHook('afterChange', autoSaveStudents);
+boysHot.addHook('afterChange', (changes, source) => {
+    if (!changes || source === 'loadData') return;
+    autoSaveStudents();
+});
+
+girlsHot.addHook('afterChange', (changes, source) => {
+    if (!changes || source === 'loadData') return;
+    autoSaveStudents();
+});
 });
 
 function getPreparedDataForExport(hotInstance, defaultSex){

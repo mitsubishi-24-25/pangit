@@ -305,6 +305,9 @@
             <li class="nav-item">
                 <a class="nav-link no-link" href="#">Core-Values</a>
             </li>
+            <li class="nav-item">
+                <button onclick="logout()" class="nav-link">Logout</button>
+            </li>
         </ul>
     </div>
 
@@ -319,8 +322,24 @@
 
                     <br>
 
+                    <div class="mb-3">
+                        <button id="downloadSingleBtn" class="btn btn-primary me-2">Download Current Card</button>
+                        <button id="downloadAllBtn" class="btn btn-success">Download All Cards</button>
+                    </div>
+
+                    <div id="progressContainer" class="my-3" style="display:none;">
+                        <div class="progress">
+                            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                role="progressbar" style="width: 0%">0%</div>
+                        </div>
+                        <p class="text-center mt-2 fw-semibold text-light">Generating PDFs... Please wait</p>
+                    </div>
+
+
+
+
                     <div id="printableCard">
-                        <img src="Front Card.png" alt="" class="img-fluid" id="front-card">
+                        <img src="Front Card.png" alt="" class="img-fluid" id="front-card" crossorigin="anonymous">
                         <div class="overlay-text">
                             <p id="studentName"></p>
                             <p id="studentAge"></p>
@@ -347,6 +366,12 @@
             </div>
         </div>
     </div>
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 
 <script>
 
@@ -433,6 +458,142 @@ dropdown.addEventListener('change', e => {
 populateCertificate(null);
 
 </script>
+
+<script>
+    (async function () {
+    function toast(msg) {
+        if (typeof showToast === "function") showToast(msg);
+        else alert(msg);
+    }
+
+    if (!window.html2canvas || !window.jspdf?.jsPDF) {
+        console.error("Missing html2canvas or jsPDF");
+        toast("Required libraries missing.");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+
+    const dropdown = document.getElementById("studentDropdown");
+    const printableCard = document.getElementById("printableCard");
+    const frontImg = document.getElementById("front-card");
+    const btnSingle = document.getElementById("downloadSingleBtn");
+    const btnAll = document.getElementById("downloadAllBtn");
+
+    async function ensureImageLoaded(img) {
+        if (!img) return;
+        if (img.complete && img.naturalWidth !== 0) return;
+        await new Promise((resolve) => {
+        img.onload = resolve;
+        img.onerror = resolve;
+        });
+    }
+
+    async function capture(el) {
+        await ensureImageLoaded(frontImg);
+        await new Promise((r) => requestAnimationFrame(r));
+        const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
+        });
+        return canvas.toDataURL("image/png");
+    }
+
+    function getStudents() {
+        const boys = JSON.parse(localStorage.getItem("boysData")) || [];
+        const girls = JSON.parse(localStorage.getItem("girlsData")) || [];
+        return [...boys, ...girls];
+    }
+
+    async function downloadAllPDFs() {
+        try {
+            const students = getStudents();
+            if (!students.length) return toast("No student data found!");
+
+            const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+            const progressContainer = document.getElementById("progressContainer");
+            const progressBar = document.getElementById("progressBar");
+
+            // Show progress bar
+            progressContainer.style.display = "block";
+            progressBar.style.width = "0%";
+            progressBar.textContent = "0%";
+            btnAll.disabled = true;
+
+            for (let i = 0; i < students.length; i++) {
+            const s = students[i];
+            if (typeof populateCertificate === "function") populateCertificate(s);
+
+            await new Promise(r => requestAnimationFrame(r));
+            await new Promise(r => setTimeout(r, 200));
+
+            const img = await capture(printableCard);
+            const w = pdf.internal.pageSize.getWidth();
+            const h = pdf.internal.pageSize.getHeight();
+            if (i > 0) pdf.addPage();
+            pdf.addImage(img, "PNG", 0, 0, w, h);
+
+            // Update progress bar
+            const percent = Math.round(((i + 1) / students.length) * 100);
+            progressBar.style.width = percent + "%";
+            progressBar.textContent = percent + "%";
+            }
+
+            // Done
+            await new Promise(r => setTimeout(r, 500));
+            pdf.save("All_Students_Cards.pdf");
+
+            toast("✅ All student cards saved successfully!");
+            if (typeof populateCertificate === "function") populateCertificate(null);
+        } catch (err) {
+            console.error("downloadAllPDFs error", err);
+            toast("❌ Failed to generate all PDFs. Check console for details.");
+        } finally {
+            // Hide progress bar after done or error
+            btnAll.disabled = false;
+            setTimeout(() => {
+            progressContainer.style.display = "none";
+            progressBar.style.width = "0%";
+            progressBar.textContent = "0%";
+            }, 2000);
+        }
+        }
+
+
+    async function downloadSinglePDF() {
+        try {
+        const selectedName = dropdown?.value;
+        if (!selectedName) return toast("Please select a student first.");
+
+        const students = getStudents();
+        const student = students.find((s) => s.name === selectedName);
+        if (!student) return toast("Student not found.");
+
+        if (typeof populateCertificate === "function") populateCertificate(student);
+        await new Promise((r) => requestAnimationFrame(r));
+        await new Promise((r) => setTimeout(r, 120));
+
+        const img = await capture(printableCard);
+        const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+        const w = pdf.internal.pageSize.getWidth();
+        const h = pdf.internal.pageSize.getHeight();
+        pdf.addImage(img, "PNG", 0, 0, w, h);
+        pdf.save(`${selectedName.replace(/[\\/:*?"<>|]/g, "_")}_Card.pdf`);
+        } catch (err) {
+        console.error("downloadSinglePDF error", err);
+        toast("Failed to create PDF. See console for details.");
+        }
+    }
+
+    if (btnSingle) btnSingle.addEventListener("click", downloadSinglePDF);
+    if (btnAll) btnAll.addEventListener("click", downloadAllPDFs);
+    window.downloadSinglePDF = downloadSinglePDF;
+    window.downloadAllPDFs = downloadAllPDFs;
+    })();
+</script>
+
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
