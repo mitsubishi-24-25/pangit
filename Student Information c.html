@@ -701,48 +701,49 @@ document.addEventListener("DOMContentLoaded", async () => {
             stretchH: "all",
             contextMenu: {
     items: {
-        cut: { name: 'Cut' },
-        copy: { name: 'Copy' },
-        paste: { name: 'Paste' },
-        sep1: Handsontable.plugins.ContextMenu.SEPARATOR,
-        clear: { name: 'Delete' },  // Delete = clear content ng selected cells
         edit: {
             name: 'Edit',
             callback: function () {
-                // Kung may selected cell, direct mag-edit sa unang cell
                 const selection = this.getSelected();
                 if (selection && selection.length > 0) {
-                    const startRow = selection[0][0];
-                    const startCol = selection[0][1];
-                    this.selectCell(startRow, startCol);
+                    const row = selection[0][0];
+                    const col = selection[0][1];
+                    this.selectCell(row, col);
                     setTimeout(() => {
                         const editor = this.getActiveEditor();
                         if (editor) editor.beginEditing();
                     }, 0);
                 }
             }
-        }
+        },
+        copy: { name: 'Copy' },
+        cut: { name: 'Cut' },
+        paste: { name: 'Paste' },
+        sep1: Handsontable.plugins.ContextMenu.SEPARATOR,
+        clear: { name: 'Delete' }
     }
 },
-afterOnCellMouseDown: function (event, coords) {
-    if (coords.row < 0 || coords.col < 0) return; // header lang
+afterOnCellMouseDown: function (event, coords, TD) {
+    if (coords.row < 0 || coords.col < 0) return; // ignore headers
 
-    // Select ang cell
+    // Always select the cell on tap/click
     this.selectCell(coords.row, coords.col);
 
-    // Check kung same cell na selected na
-    const selected = this.getSelected();
-    if (selected &&
-        selected[0][0] === coords.row &&
-        selected[0][1] === coords.col &&
-        selected[0][2] === coords.row &&
-        selected[0][3] === coords.col) {
-        
-        // Second tap sa same cell → direct edit
-        setTimeout(() => {
-            const editor = this.getActiveEditor();
-            if (editor) editor.beginEditing();
-        }, 100);
+    // Check if this is the second tap on the same cell
+    const currentSelection = this.getSelected();
+    if (currentSelection &&
+        currentSelection.length === 1 &&
+        currentSelection[0][0] === coords.row &&
+        currentSelection[0][1] === coords.col &&
+        currentSelection[0][2] === coords.row &&
+        currentSelection[0][3] === coords.col) {
+
+        // This is second tap on already selected single cell
+        // Show the context menu manually
+        const contextMenu = this.getPlugin('contextMenu');
+        if (contextMenu) {
+            contextMenu.open(event);
+        }
     }
 },
 beforePaste: function (data, coords) {
