@@ -255,6 +255,23 @@
             color: black !important;
         }
 
+        @media (max-width: 768px) {
+            .button-row {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+            .button-row .btn-group-left,
+            .button-row .btn-danger {
+                width: 100%;
+            }
+            .button-row .btn-group-left .btn {
+                flex: 1;
+            }
+            .button-row > .ms-auto {
+                display: none; /* Hide spacer on mobile */
+            }
+        }
+
     </style>
     
 </head>
@@ -288,13 +305,14 @@
         <div class="container-fluid container">
             <div class="row">
                 <div class="col-12">
-                    <div class="d-flex button-row">
-                        <div class="btn-group-left">
+                    <div class="d-flex button-row flex-wrap gap-3 align-items-center">
+                        <div class="btn-group-left d-flex flex-wrap gap-2">
                             <button class="btn btn-primary" onclick="exportData()">Export Data</button>
                             <button class="btn btn-secondary" onclick="window.confirmImport()">Import Data</button>
                             <input type="file" id="importFile" accept=".xlsx,.xls" style="display:none" onchange="importData(event)">
-                        </div>
-                        <button class="btn btn-danger btn-right" onclick="showClearConfirmation()">Clear Data (Male/Female)</button>
+                        </div>  
+                        <div class="ms-auto"></div> <!-- Spacer to push Clear button to the right on large screens -->
+                        <button class="btn btn-danger flex-shrink-0" onclick="showClearConfirmation()">Clear Data (Male/Female)</button>
                     </div>
 
                     <div id="metadataHot" class="hot-container metadata-table"></div>
@@ -681,7 +699,74 @@ document.addEventListener("DOMContentLoaded", async () => {
             colHeaders: ["Name","Age","Gender","LRN","Parent","Parent Number","Parent Gmail"],
             rowHeaders: true,
             stretchH: "all",
-            contextMenu: true,
+            contextMenu: {
+    items: {
+        cut: { name: 'Cut' },
+        copy: { name: 'Copy' },
+        paste: { name: 'Paste' },
+        sep1: Handsontable.plugins.ContextMenu.SEPARATOR,
+        clear: { name: 'Delete' },  // Delete = clear content ng selected cells
+        edit: {
+            name: 'Edit',
+            callback: function () {
+                // Kung may selected cell, direct mag-edit sa unang cell
+                const selection = this.getSelected();
+                if (selection && selection.length > 0) {
+                    const startRow = selection[0][0];
+                    const startCol = selection[0][1];
+                    this.selectCell(startRow, startCol);
+                    setTimeout(() => {
+                        const editor = this.getActiveEditor();
+                        if (editor) editor.beginEditing();
+                    }, 0);
+                }
+            }
+        }
+    }
+},
+afterOnCellMouseDown: function (event, coords) {
+    if (coords.row < 0 || coords.col < 0) return; // header lang
+
+    // Select ang cell
+    this.selectCell(coords.row, coords.col);
+
+    // Check kung same cell na selected na
+    const selected = this.getSelected();
+    if (selected &&
+        selected[0][0] === coords.row &&
+        selected[0][1] === coords.col &&
+        selected[0][2] === coords.row &&
+        selected[0][3] === coords.col) {
+        
+        // Second tap sa same cell → direct edit
+        setTimeout(() => {
+            const editor = this.getActiveEditor();
+            if (editor) editor.beginEditing();
+        }, 100);
+    }
+},
+beforePaste: function (data, coords) {
+    // data = 2D array galing clipboard
+    // coords = kung saan mo i-paste (usually single cell)
+
+    // Kung multi-row ang data pero single cell lang target
+    if (data.length > 1 && coords.length === 1) {
+        const startRow = coords[0].startRow;
+        const startCol = coords[0].startCol;
+
+        // Manual na ilagay ang data pababa (at pakanan kung multi-column)
+        for (let i = 0; i < data.length; i++) {
+            for (let j = 0; j < data[i].length; j++) {
+                if (startRow + i < this.countRows() && startCol + j < this.countCols()) {
+                    this.setDataAtCell(startRow + i, startCol + j, data[i][j] || '', 'paste.multirow');
+                }
+            }
+        }
+        return false; // cancel ang default paste behavior
+    }
+    // Kung single row lang o normal paste, gamitin ang default
+    return true;
+},
             manualRowResize: true,
             manualColumnResize: true,
             hiddenColumns: { columns: [2], indicators: false },
