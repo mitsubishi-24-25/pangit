@@ -664,7 +664,7 @@
     const file = e.target.files[0];
     if (!file) return;
 
-    // Use single modal
+    // Get modal elements
     const modalElement = document.getElementById('importModal');
     const importModal = new bootstrap.Modal(modalElement, {
         backdrop: 'static',
@@ -677,12 +677,16 @@
     const modalCloseBtn = document.getElementById('importModalCloseBtn');
     const okBtn = document.getElementById('importModalOKBtn');
 
-    // Show as "Please wait"
+    // SHOW "Please wait" IMMEDIATELY
     modalTitle.textContent = "Importing Grades";
     modalBody.innerHTML = '<p class="mb-0 fs-4">Please wait while we process your file...</p>';
     modalFooter.classList.add('d-none');
     modalCloseBtn.classList.add('d-none');
     importModal.show();
+
+    // Start timer para siguradong makikita yung "Please wait" kahit ilang segundo
+    const minWaitTime = 1500; // 1.5 seconds minimum visible time
+    const startTime = Date.now();
 
     const reader = new FileReader();
     reader.onload = function(ev) {
@@ -783,7 +787,7 @@
                 }
             }
 
-            // Save and update UI
+            // Save and UI updates
             saveCardGen(cardGen);
 
             const subjectChanges = [];
@@ -822,35 +826,40 @@
             updateTable('boysHot', 'boys');
             updateTable('girlsHot', 'girls');
 
-            // Now transform the same modal into Results
-            modalTitle.textContent = "Import Results";
+            // Calculate how much time left to meet minimum wait
+            const elapsed = Date.now() - startTime;
+            const delay = Math.max(0, minWaitTime - elapsed);
 
-            modalBody.innerHTML = `
-                <div class="mb-4">
-                    <strong>Import completed successfully!</strong><br><br>
-                    Successfully updated:<br>
-                    • <strong>${boysSuccess}</strong> Male students<br>
-                    • <strong>${girlsSuccess}</strong> Female students<br><br>
-                    Unmatched names: <strong>${unmatchedBoys.length + unmatchedGirls.length}</strong>
-                </div>
-                <h6>Unmatched Names from File:</h6>
-                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 10px; background-color: #f8f9fa;">
-                    <ul class="mb-0" style="list-style: inside;">
-                        ${unmatchedBoys.length + unmatchedGirls.length === 0 
-                            ? '<li><em>All names matched perfectly! ✅</em></li>' 
-                            : [...unmatchedBoys, ...unmatchedGirls].map(name => `<li>${name}</li>`).join('')}
-                    </ul>
-                </div>
-            `;
+            // Wait for the remaining time before showing results
+            setTimeout(() => {
+                // Transform modal to results
+                modalTitle.textContent = "Import Results";
 
-            // Show footer and close button
-            modalFooter.classList.remove('d-none');
-            modalCloseBtn.classList.remove('d-none');
+                modalBody.innerHTML = `
+                    <div class="mb-4">
+                        <strong>Import completed successfully!</strong><br><br>
+                        Successfully updated:<br>
+                        • <strong>${boysSuccess}</strong> Male students<br>
+                        • <strong>${girlsSuccess}</strong> Female students<br><br>
+                        Unmatched names: <strong>${unmatchedBoys.length + unmatchedGirls.length}</strong>
+                    </div>
+                    <h6>Unmatched Names from File:</h6>
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 10px; background-color: #f8f9fa;">
+                        <ul class="mb-0" style="list-style: inside;">
+                            ${unmatchedBoys.length + unmatchedGirls.length === 0 
+                                ? '<li><em>All names matched perfectly! ✅</em></li>' 
+                                : [...unmatchedBoys, ...unmatchedGirls].map(name => `<li>${name}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
 
-            // OK button closes the modal
-            okBtn.onclick = () => importModal.hide();
+                modalFooter.classList.remove('d-none');
+                modalCloseBtn.classList.remove('d-none');
+                okBtn.onclick = () => importModal.hide();
 
-            showToast("Import completed successfully!");
+                showToast("Import completed successfully!");
+
+            }, delay);
 
         } catch (err) {
             console.error(err);
