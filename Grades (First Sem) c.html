@@ -659,7 +659,7 @@
                     }
                 }
     
-                XLSX.utils.book_append_sheet(wb, ws, "Grades Sem1");
+                XLSX.utils.book_append_sheet(wb, ws, "First Sem");
                 XLSX.writeFile(wb, "Grades_Sem1_DEPED_FINAL.xlsx");
     
                 showToast("Exported na! Perfect DepEd Class Record with all merges!");
@@ -667,215 +667,237 @@
     
             // ==================== IMPORT DATA (SUPER BILIS NA!) ====================
             window.importData = function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
 
-                const modalElement = document.getElementById('importModal');
-                const importModal = new bootstrap.Modal(modalElement, {
-                    backdrop: 'static',
-                    keyboard: false
+    const importModal = new bootstrap.Modal(document.getElementById('importModal'), {
+        backdrop: 'static',
+        keyboard: false
+    });
+    document.getElementById('importModalTitle').textContent = "Importing Grades";
+    document.getElementById('importModalBody').innerHTML = '<p class="mb-0 fs-4">Reading and processing file... Please wait.</p>';
+    document.getElementById('importModalFooter').classList.add('d-none');
+    document.getElementById('importModalCloseBtn').classList.add('d-none');
+    importModal.show();
+
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        try {
+            const data = ev.target.result;
+            const wb = XLSX.read(data, { 
+                type: 'array',
+                dense: false,         // Gamit ulit cell addresses para reliable sa merges
+                cellText: false,
+                cellDates: false
+            });
+
+            const sheetName = "First Sem"; // Siguraduhin na exact ito yung sheet name mo
+            if (!wb.SheetNames.includes(sheetName)) {
+                alert("Error: Walang sheet na 'First Sem' sa file! (Check sheet name)");
+                importModal.hide();
+                return;
+            }
+
+            const ws = wb.Sheets[sheetName];
+
+            // Reliable cell getter (hindi naaapektuhan ng merges)
+            const getVal = (r, c) => {
+                const addr = XLSX.utils.encode_cell({ r, c });
+                const cell = ws[addr];
+                return cell && cell.v !== undefined && cell.v !== null ? String(cell.v).trim() : "";
+            };
+
+            let cardGen = getCardGen();
+            cardGen.subject = cardGen.subject || { sem1: { core: {}, applied: {} } };
+            cardGen.students = cardGen.students || { boys: {}, girls: {} };
+
+            // Name maps
+            const boysMap = new Map();
+            Object.values(cardGen.students.boys || {}).forEach(stu => {
+                if (stu.name) boysMap.set(normalizeName(stu.name), stu);
+            });
+            const girlsMap = new Map();
+            Object.values(cardGen.students.girls || {}).forEach(stu => {
+                if (stu.name) girlsMap.set(normalizeName(stu.name), stu);
+            });
+
+            const findStudent = (map, rawName) => {
+                if (!rawName) return null;
+                let norm = normalizeName(rawName);
+                if (map.has(norm)) return map.get(norm);
+                const parts = norm.split(' ');
+                if (parts.length >= 3) {
+                    const noMiddle = parts[0] + ' ' + parts.slice(2).join(' ');
+                    if (map.has(noMiddle)) return map.get(noMiddle);
+                }
+                return null;
+            };
+
+            let boysSuccess = 0, girlsSuccess = 0;
+            const unmatched = [];
+
+            // Subjects (rows 1-8 sa export mo, index 1-8)
+            for (let i = 1; i <= 8; i++) {
+                cardGen.subject.sem1.core[`subject${i}`] = getVal(i, 1) || "";
+                cardGen.subject.sem1.applied[`subject${i}`] = getVal(i, 2) || "";
+            }
+
+            // Boys: rows 15 to 64 (exact sa export format mo)
+            for (let r = 15; r <= 64; r++) {
+                const name = getVal(r, 0);
+                if (!name) continue;
+                const student = findStudent(boysMap, name);
+                if (student) {
+                    student.grade = student.grade || {};
+                    student.grade.sem1 = { core: {}, applied: {}, genAve: "" };
+                    for (let s = 0; s < 8; s++) {
+                        const c = 2 + s * 3;
+                        student.grade.sem1.core[`subject${s+1}`] = {
+                            "1st": getVal(r, c) || "",
+                            "2nd": getVal(r, c+1) || "",
+                            "final": ""
+                        };
+                    }
+                    for (let s = 0; s < 8; s++) {
+                        const c = 26 + s * 3;
+                        student.grade.sem1.applied[`subject${s+1}`] = {
+                            "1st": getVal(r, c) || "",
+                            "2nd": getVal(r, c+1) || "",
+                            "final": ""
+                        };
+                    }
+                    boysSuccess++;
+                } else {
+                    unmatched.push(name);
+                }
+            }
+
+            // Girls: rows 66 to 115
+            for (let r = 66; r <= 115; r++) {
+                const name = getVal(r, 0);
+                if (!name) continue;
+                const student = findStudent(girlsMap, name);
+                if (student) {
+                    student.grade = student.grade || {};
+                    student.grade.sem1 = { core: {}, applied: {}, genAve: "" };
+                    for (let s = 0; s < 8; s++) {
+                        const c = 2 + s * 3;
+                        student.grade.sem1.core[`subject${s+1}`] = {
+                            "1st": getVal(r, c) || "",
+                            "2nd": getVal(r, c+1) || "",
+                            "final": ""
+                        };
+                    }
+                    for (let s = 0; s < 8; s++) {
+                        const c = 26 + s * 3;
+                        student.grade.sem1.applied[`subject${s+1}`] = {
+                            "1st": getVal(r, c) || "",
+                            "2nd": getVal(r, c+1) || "",
+                            "final": ""
+                        };
+                    }
+                    girlsSuccess++;
+                } else {
+                    unmatched.push(name);
+                }
+            }
+
+            // Compute finals and genAve (one-time)
+            const computeFinalsAndGenAve = (student) => {
+                let total = 0, count = 0;
+                for (let s = 1; s <= 8; s++) {
+                    const key = `subject${s}`;
+                    ['core', 'applied'].forEach(type => {
+                        const grades = student.grade.sem1[type][key] || {};
+                        const q1 = parseFloat(grades["1st"]) || 0;
+                        const q2 = parseFloat(grades["2nd"]) || 0;
+                        const final = (q1 > 0 && q2 > 0) ? Math.round((q1 + q2) / 2) : "";
+                        student.grade.sem1[type][key]["final"] = final;
+                        if (final) { total += final; count++; }
+                    });
+                }
+                student.grade.sem1.genAve = count > 0 ? Math.round(total / count) : "";
+            };
+
+            Object.values(cardGen.students.boys || {}).concat(Object.values(cardGen.students.girls || {}))
+                .forEach(stu => { if (stu.grade?.sem1) computeFinalsAndGenAve(stu); });
+
+            saveCardGen(cardGen);
+
+            // Update tables - fast full loadData + suspendRender
+            ['boysHot', 'girlsHot'].forEach(id => {
+                const hot = document.getElementById(id)?.__hotInstance;
+                if (!hot) return;
+                hot.suspendRender();
+
+                const newData = hot.getData().map((row, idx) => idx < 4 ? row : [row[0], "", ...Array(48).fill("")]);
+
+                const gender = id === 'boysHot' ? 'boys' : 'girls';
+                const students = Object.values(cardGen.students[gender] || {});
+
+                students.forEach((stu, i) => {
+                    const rowIdx = 4 + i;
+                    if (rowIdx >= newData.length) return;
+                    newData[rowIdx][0] = stu.name || "";
+                    newData[rowIdx][1] = stu.grade?.sem1?.genAve ?? "";
+
+                    for (let s = 0; s < 8; s++) {
+                        const c = 2 + s * 3;
+                        const core = stu.grade?.sem1?.core?.[`subject${s+1}`] || {};
+                        newData[rowIdx][c]   = core["1st"] ?? "";
+                        newData[rowIdx][c+1] = core["2nd"] ?? "";
+                        newData[rowIdx][c+2] = core["final"] ?? "";
+                    }
+                    for (let s = 0; s < 8; s++) {
+                        const c = 26 + s * 3;
+                        const applied = stu.grade?.sem1?.applied?.[`subject${s+1}`] || {};
+                        newData[rowIdx][c]   = applied["1st"] ?? "";
+                        newData[rowIdx][c+1] = applied["2nd"] ?? "";
+                        newData[rowIdx][c+2] = applied["final"] ?? "";
+                    }
                 });
 
-                const modalTitle = document.getElementById('importModalTitle');
-                const modalBody = document.getElementById('importModalBody');
-                const modalFooter = document.getElementById('importModalFooter');
-                const modalCloseBtn = document.getElementById('importModalCloseBtn');
-                const okBtn = document.getElementById('importModalOKBtn');
+                hot.loadData(newData);
+                hot.resumeRender();
+            });
 
-                modalTitle.textContent = "Importing Grades";
-                modalBody.innerHTML = '<p class="mb-0 fs-4">Please wait while we process your file...</p>';
-                modalFooter.classList.add('d-none');
-                modalCloseBtn.classList.add('d-none');
-                importModal.show();
+            // Update subjects
+            const subjectChanges = [];
+            for (let i = 1; i <= 8; i++) {
+                subjectChanges.push([i, 1, cardGen.subject.sem1.core[`subject${i}`] || ""]);
+                subjectChanges.push([i, 2, cardGen.subject.sem1.applied[`subject${i}`] || ""]);
+            }
+            subjectHot.setDataAtCell(subjectChanges);
 
-                // Tinanggal ko yung artificial delay para instant talaga pag mabilis
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    try {
-                        const data = new Uint8Array(ev.target.result);
-                        const wb = XLSX.read(data, { type: 'array' });
-
-                        const sheetName = "First Sem";
-                        if (!wb.SheetNames.includes(sheetName)) {
-                            alert("Error: Walang sheet na 'First Sem' sa file!");
-                            importModal.hide();
-                            return;
-                        }
-
-                        const ws = wb.Sheets[sheetName];
-
-                        const getVal = (r, c) => {
-                            if (r > 115 || c > 49) return "";
-                            const addr = XLSX.utils.encode_cell({ r, c });
-                            const cell = ws[addr];
-                            return cell && cell.v !== undefined && cell.v !== null ? String(cell.v).trim() : "";
-                        };
-
-                        let cardGen = getCardGen();
-                        cardGen.subject = cardGen.subject || { sem1: { core: {}, applied: {} } };
-                        cardGen.students = cardGen.students || { boys: {}, girls: {} };
-
-                        const boysMap = new Map();
-                        Object.values(cardGen.students.boys).forEach(stu => {
-                            if (stu.name) boysMap.set(normalizeName(stu.name), stu);
-                        });
-
-                        const girlsMap = new Map();
-                        Object.values(cardGen.students.girls).forEach(stu => {
-                            if (stu.name) girlsMap.set(normalizeName(stu.name), stu);
-                        });
-
-                        const findStudent = (map, rawName) => {
-                            if (!rawName) return null;
-                            let norm = normalizeName(rawName);
-                            if (map.has(norm)) return map.get(norm);
-                            const parts = norm.split(' ');
-                            if (parts.length >= 3) {
-                                const withoutMiddle = [...parts.slice(0,1), ...parts.slice(2)].join(' ');
-                                if (map.has(withoutMiddle)) return map.get(withoutMiddle);
-                            }
-                            return null;
-                        };
-
-                        let boysSuccess = 0, girlsSuccess = 0;
-                        const unmatchedBoys = [], unmatchedGirls = [];
-
-                        // Subjects
-                        for (let i = 1; i <= 8; i++) {
-                            cardGen.subject.sem1.core[`subject${i}`] = getVal(i, 1);
-                            cardGen.subject.sem1.applied[`subject${i}`] = getVal(i, 2);
-                        }
-
-                        // Helper para mag-compute ng final at genAve
-                        const updateStudentGrades = (student, isBoy) => {
-                            let total = 0, count = 0;
-
-                            for (let s = 1; s <= 8; s++) {
-                                const key = `subject${s}`;
-                                const core = student.grade.sem1.core[key] || {};
-                                const q1c = parseFloat(core["1st"]) || 0;
-                                const q2c = parseFloat(core["2nd"]) || 0;
-                                const finalCore = (q1c > 0 && q2c > 0) ? Math.round((q1c + q2c) / 2) : "";
-                                student.grade.sem1.core[key]["final"] = finalCore;
-                                if (finalCore) { total += finalCore; count++; }
-                            }
-
-                            for (let s = 1; s <= 8; s++) {
-                                const key = `subject${s}`;
-                                const applied = student.grade.sem1.applied[key] || {};
-                                const q1a = parseFloat(applied["1st"]) || 0;
-                                const q2a = parseFloat(applied["2nd"]) || 0;
-                                const finalApplied = (q1a > 0 && q2a > 0) ? Math.round((q1a + q2a) / 2) : "";
-                                student.grade.sem1.applied[key]["final"] = finalApplied;
-                                if (finalApplied) { total += finalApplied; count++; }
-                            }
-
-                            student.grade.sem1.genAve = count > 0 ? Math.round(total / count) : "";
-                        };
-
-                        // Boys
-                        for (let r = 15; r <= 64; r++) {
-                            const name = getVal(r, 0);
-                            if (!name) continue;
-                            const student = findStudent(boysMap, name);
-                            if (student) {
-                                student.grade.sem1 = student.grade.sem1 || { core: {}, applied: {}, genAve: "" };
-                                for (let s = 0; s < 8; s++) {
-                                    const c = 2 + s * 3;
-                                    const q1 = getVal(r, c);
-                                    const q2 = getVal(r, c+1);
-                                    student.grade.sem1.core[`subject${s+1}`] = { "1st": q1, "2nd": q2, "final": "" };
-                                }
-                                for (let s = 0; s < 8; s++) {
-                                    const c = 26 + s * 3;
-                                    const q1 = getVal(r, c);
-                                    const q2 = getVal(r, c+1);
-                                    student.grade.sem1.applied[`subject${s+1}`] = { "1st": q1, "2nd": q2, "final": "" };
-                                }
-                                updateStudentGrades(student, true);
-                                boysSuccess++;
-                            } else {
-                                unmatchedBoys.push(name);
-                            }
-                        }
-
-                        // Girls
-                        for (let r = 66; r <= 115; r++) {
-                            const name = getVal(r, 0);
-                            if (!name) continue;
-                            const student = findStudent(girlsMap, name);
-                            if (student) {
-                                student.grade.sem1 = student.grade.sem1 || { core: {}, applied: {}, genAve: "" };
-                                for (let s = 0; s < 8; s++) {
-                                    const c = 2 + s * 3;
-                                    const q1 = getVal(r, c);
-                                    const q2 = getVal(r, c+1);
-                                    student.grade.sem1.core[`subject${s+1}`] = { "1st": q1, "2nd": q2, "final": "" };
-                                }
-                                for (let s = 0; s < 8; s++) {
-                                    const c = 26 + s * 3;
-                                    const q1 = getVal(r, c);
-                                    const q2 = getVal(r, c+1);
-                                    student.grade.sem1.applied[`subject${s+1}`] = { "1st": q1, "2nd": q2, "final": "" };
-                                }
-                                updateStudentGrades(student, false);
-                                girlsSuccess++;
-                            } else {
-                                unmatchedGirls.push(name);
-                            }
-                        }
-
-                        saveCardGen(cardGen);
-
-                        // Update subject table
-                        const subjectChanges = [];
-                        for (let i = 1; i <= 8; i++) {
-                            subjectChanges.push([i, 1, cardGen.subject.sem1.core[`subject${i}`] || ""]);
-                            subjectChanges.push([i, 2, cardGen.subject.sem1.applied[`subject${i}`] || ""]);
-                        }
-                        subjectHot.setDataAtCell(subjectChanges);
-
-                        // Refresh both tables with finals and genAve na kasama
-                        updateTableWithComputations('boysHot', 'boys');
-                        updateTableWithComputations('girlsHot', 'girls');
-
-                        // Instant na result pag tapos
-                                        // May konting delay para makita yung "Please wait" kahit sandali
-                setTimeout(() => {
-                    modalTitle.textContent = "Import Completed!";
-                    modalBody.innerHTML = `
-                        <div class="mb-4">
-                            <strong>Import completed successfully! ✅</strong><br><br>
-                            Successfully updated:<br>
-                            • <strong>${boysSuccess}</strong> Male students<br>
-                            • <strong>${girlsSuccess}</strong> Female students<br><br>
-                            Unmatched names: <strong>${unmatchedBoys.length + unmatchedGirls.length}</strong>
-                        </div>
-                        ${unmatchedBoys.length + unmatchedGirls.length === 0 ? 
-                            '<p><em>All names matched perfectly!</em></p>' :
-                            `<h6>Unmatched Names:</h6>
-                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 10px; background:#f8f9fa;">
-                                <ul class="mb-0" style="list-style: inside;">
-                                    ${[...unmatchedBoys, ...unmatchedGirls].map(n => `<li>${n}</li>`).join('')}
-                                </ul>
-                            </div>`}
-                    `;
-                    modalFooter.classList.remove('d-none');
-                    modalCloseBtn.classList.remove('d-none');
-                    okBtn.onclick = () => importModal.hide();
-                    showToast("Import successful! Finals at Gen Ave na-compute na rin!");
-                }, 500); // 500ms delay = makikita mo pa rin yung "Please wait"
-                        
-                    } catch (err) {
-                        console.error(err);
-                        alert("Error during import: " + err.message);
-                        importModal.hide();
+            setTimeout(() => {
+                document.getElementById('importModalTitle').textContent = "Import Completed! ✅";
+                document.getElementById('importModalBody').innerHTML = `
+                    <strong>Import successful!</strong><br><br>
+                    • <strong>${boysSuccess}</strong> Male students<br>
+                    • <strong>${girlsSuccess}</strong> Female students<br><br>
+                    Unmatched names: <strong>${unmatched.length}</strong>
+                    ${unmatched.length > 0 ? 
+                        `<div style="max-height:250px;overflow-y:auto;margin-top:10px;padding:10px;background:#f8f9fa;border:1px solid #dee2e6;border-radius:8px;">
+                            <small>${unmatched.join('<br>')}</small>
+                        </div>` : 
+                        '<p><em>Lahat ng names matched perfectly! 🥳</em></p>'
                     }
-                };
+                `;
+                document.getElementById('importModalFooter').classList.remove('d-none');
+                document.getElementById('importModalCloseBtn').classList.remove('d-none');
+                document.getElementById('importModalOKBtn').onclick = () => importModal.hide();
+                showToast("Import fixed na! Lahat ng grades dapat nakapasok na. 🚀");
+            }, 300);
 
-                reader.readAsArrayBuffer(file);
-            };
-    
+        } catch (err) {
+            console.error(err);
+            alert("Error sa import: " + err.message);
+            importModal.hide();
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+};
             // ==================== OPTIMIZED UPDATE TABLE ====================
             const updateTableWithComputations = (hotId, gender) => {
                 const hot = document.getElementById(hotId)?.__hotInstance;
