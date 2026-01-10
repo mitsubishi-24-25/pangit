@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Front Card Template</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="Toast.css">
+    <link rel="stylesheet" href="root.css">
+
+    <style>
+        body {
+            background: var(--background-color);
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .navbar {
+            z-index: 1060 !important;
+            font-family: 'Oswald', sans-serif;
+            background: var(--primary-color) !important;
+        }
+
+        .main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s;
+            padding-top: 0;
+        }
+
+        @media (min-width: 992px) {
+            .main-content {
+                margin-left: 250px;
+                padding-right: 2rem;
+            }
+        }
+
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: var(--secondary-color);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 1050;
+            font-family: 'Poppins', sans-serif;
+            padding-top: 60px;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        @media (min-width: 992px) {
+            .sidebar {
+                transform: translateX(0) !important;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .sidebar {
+                position: absolute;
+                height: 100vh;
+            }
+        }
+
+        .sidebar .nav-link {
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+            color: var(--primary-color);
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            transform: translateX(5px);
+        }
+
+        .sidebar .nav-link.active {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            font-weight: bold;
+            transform: translateX(5px);
+            pointer-events: none;
+        }
+
+        .sidebar .nav-item p {
+            font-family: Poppins;
+            font-weight: bold;
+            color: var(--primarydark-color);
+        }
+
+        #toggleBtn {
+            color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        #toggleBtn:hover {
+            background-color: var(--secondary-color) !important;
+            color: var(--primary-color) !important;
+            border-color: var(--secondary-color) !important;
+        }
+
+        @media (min-width: 992px) {
+            #toggleBtn {
+                display: none;
+            }
+        }
+
+        .container {
+            padding: 0 15px;
+            overflow: hidden;
+        }
+
+        #cardContainer {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        #printableCard {
+            position: relative;
+            width: 279.4mm;
+            height: 215.9mm;
+            overflow: hidden;
+        }
+
+        #front-card {
+            width: 100%;
+            height: 100%;
+        }
+
+        .overlay-text {
+            position: absolute;
+            top: 50px;
+            left: 250px;
+            color: black;
+            font-family: 'Times New Roman';
+            white-space: nowrap;
+            font-size: smaller;
+        }
+
+        .overlay-text .month-text {
+            white-space: nowrap;
+            font-size: smaller;
+            text-align: center;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .overlay-text #month1wrapper {
+            position: absolute;
+            top: 122px;
+            left: -149px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #month2wrapper {
+            position: absolute;
+            top: 122px;
+            left: -120px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #month3wrapper {
+            position: absolute;
+            top: 122px;
+            left: -90px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #month4wrapper {
+            position: absolute;
+            top: 122px;
+            left: -59px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #month5wrapper {
+            position: absolute;
+            top: 122px;
+            left: -31px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #month6wrapper {
+            position: absolute;
+            top: 122px;
+            left: -2px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #month7wrapper {
+            position: absolute;
+            top: 122px;
+            left: 28px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #month8wrapper {
+            position: absolute;
+            top: 122px;
+            left: 58px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #month9wrapper {
+            position: absolute;
+            top: 122px;
+            left: 87px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #month10wrapper {
+            position: absolute;
+            top: 122px;
+            left: 117px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #month11wrapper {
+            position: absolute;
+            top: 122px;
+            left: 147px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #month12wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text .schooldays-text {
+            white-space: nowrap;
+            font-size: smaller;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .overlay-text .presentdays-text {
+            white-space: nowrap;
+            font-size: smaller;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .overlay-text .absentdays-text {
+            white-space: nowrap;
+            font-size: smaller;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .overlay-text #schoolDays1Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #schoolDays2Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #schoolDays3Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #schoolDays4Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #schoolDays5Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #schoolDays6Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #schoolDays7Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #schoolDays8Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #schoolDays9Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #schoolDays10Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #schoolDays11Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #schoolDays12Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #presentDays1Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+        
+        .overlay-text #presentDays2Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #presentDays3Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #presentDays4Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #presentDays5Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #presentDays6Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #presentDays7Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #presentDays8Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #presentDays9Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #presentDays10Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #presentDays11Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #presentDays12Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #absentDays1Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #absentDays2Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #absentDays3Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #absentDays4Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #absentDays5Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #absentDays6Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #absentDays7Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #absentDays8Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #absentDays9Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #absentDays10Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #absentDays11Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #absentDays12Wrapper {
+            position: absolute;
+            top: 122px;
+            left: 175px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #studentName {
+            top: 168px;
+            left: 380px;
+            position: absolute;
+        }
+
+        .overlay-text #studentAge {
+            top: 186px;
+            left: 430px;
+            position: absolute;
+        }
+
+        .overlay-text #studentGender {
+            top: 186px;
+            left: 610px;
+            position: absolute;
+        }
+
+        .overlay-text #studentGrade {
+            top: 204px;
+            left: 430px;
+            position: absolute;
+        }
+
+        .overlay-text #studentSection {
+            top: 204px;
+            left: 630px;
+            position: absolute;
+        }
+
+        .overlay-text #studentSchoolYear {
+            top: 222px;
+            left: 414px;
+            position: absolute;
+        }
+
+        .overlay-text #studentLRN {
+            top: 222px;
+            left: 604px;
+            position: absolute;
+        }
+
+        .overlay-text #studentStrand {
+            top: 251px;
+            left: 410px;
+            position: absolute;
+            font-size: smaller;
+        }
+
+        .overlay-text #studentTrack {
+            top: 240px;
+            left: 410px;
+            position: absolute;
+            font-size: smaller;
+        }
+
+        .overlay-text #studentTrackStrand {
+            top: 246px;
+            left: 410px;
+            position: absolute;
+            font-size: x-small;
+            text-align: left;
+        }
+
+        .overlay-text #principalame {
+            white-space: nowrap;
+            font-size: inherit;
+            text-align: center;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .overlay-text #principalame2 {
+            white-space: nowrap;
+            font-size: inherit;
+            text-align: center;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .overlay-text #principalame3 {
+            white-space: nowrap;
+            font-size: inherit;
+            text-align: center;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .overlay-text #teacherName {
+            white-space: nowrap;
+            font-size: inherit;
+            text-align: center;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .overlay-text #teacherName2 {
+            white-space: nowrap;
+            font-size: inherit;
+            text-align: center;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .overlay-text #teacherNameWrapper {
+            position: absolute;
+            top: 389px;
+            left: 669px;
+            transform: translateX(-50%);
+            width: auto;
+            z-index: 5;
+        }
+
+        .overlay-text #teacherName2Wrapper {
+            position: absolute;
+            top: 540px;
+            left: 669px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #principalameWrapper {
+            position: absolute;
+            top: 389px;
+            left: 421px;
+            transform: translateX(-50%);
+            width: auto;
+            z-index: 5;
+        }
+
+        .overlay-text #principalame2Wrapper {
+            position: absolute;
+            top: 540px;
+            left: 421px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #principalameW3rapper {
+            position: absolute;
+            top: 665px;
+            left: 634px;
+            transform: translateX(-50%);
+            width: auto;
+        }
+
+        .overlay-text #principalSignatureImg {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        .overlay-text #teacherSignatureImg {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        .overlay-text #principalSignatureWrapper {
+            position: absolute;
+            top: 368px;
+            left: 319px;
+            width: 203px;
+            height: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overlay-text #teacherSignatureWrapper {
+            position: absolute;
+            top: 356px;
+            left: 563px;
+            width: 210px;
+            height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #printableCard,
+            #printableCard * {
+                visibility: visible;
+            }
+
+            #printableCard {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 279.4mm;
+                height: 215.9mm;
+                margin: 0;
+            }
+
+            @page {
+                size: letter landscape;
+                margin: 0;
+            }
+        }
+
+
+
+        @media (max-width: 768px) {
+            .button-row {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            .button-row .btn-group-left,
+            .button-row .btn-danger,
+            .btn-primary {
+                width: 100%;
+            }
+
+            .button-row .btn-group-left .btn {
+                flex: 1;
+            }
+
+            .button-row>.ms-auto {
+                display: none;
+                /* Hide spacer on mobile */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-light bg-primary shadow-sm fixed-top" data-bs-theme="dark">
+        <div class="container-fluid">
+            <div
+                class="d-flex flex-column flex-lg-row w-100 align-items-start align-items-lg-center justify-content-lg-between">
+                <div class="d-flex align-items-center w-100 w-lg-auto justify-content-start mb-2 mb-lg-0">
+                    <button class="btn btn-outline-secondary me-2 d-lg-none" id="toggleBtn">☰</button>
+                    <span class="navbar-brand mb-0 h1 d-none d-lg-inline" id="Hi">CardGen: From Grade Consolidation to
+                        Printable Report Card for Senior High School</span>
+                    <span class="navbar-brand mb-0 h1 d-inline d-lg-none" id="Hi">CardGen 2025</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar collapsed" id="sidebar">
+        <ul class="nav flex-column px-3">
+            <div id="sidebar-container"></div>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="container-fluid container">
+            <div class="row">
+                <div class="col-12">
+                    <h1>Card</h1>
+                    <select id="studentDropdown" class="form-select">
+                        <option value="">Blank (Select Student)</option>
+                    </select>
+                    <br>
+                    <div class="d-flex button-row flex-wrap gap-3 align-items-center mb-3">
+                        <!-- First row/group: Download Current Card -->
+                        <button id="downloadSingleBtn" class="btn btn-primary">
+                            Download Current Card
+                        </button>
+
+                        <!-- Second row/group: Download All Cards -->
+                        <button id="downloadAllBtn" class="btn btn-success">
+                            Download All Cards
+                        </button>
+
+                        <!-- Third row/group: Track/Strand buttons -->
+                        <div class="d-flex gap-2 flex-fill">
+                            <button id="singleLineBtn" class="btn btn-primary">
+                                Single Line - Track/Strand
+                            </button>
+                            <button id="twoLineBtn" class="btn btn-primary">
+                                Two Line - Track/Strand
+                            </button>
+                        </div>
+                    </div>
+
+
+
+                    <div id="progressContainer" class="my-3" style="display:none;">
+                        <div class="progress">
+                            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated"
+                                role="progressbar" style="width: 0%">0%</div>
+                        </div>
+                        <p class="text-center mt-2 fw-semibold text-light">Generating PDFs... Please wait</p>
+                    </div>
+                    <div id="previewWrapper">
+                        <div id="cardContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Your Scripts (loaded early if needed) -->
+    <script src="SideBar-NavBar.js"></script>
+    <script src="Logout.js"></script>
+    <script src="Toast.js"></script>
+    <script src="loader.js"></script> <!-- Now safe because we call loadSidebar after DOM -->
+
+    <script>
+        // === IndexedDB for Signatures ===
+        const DB_NAME = 'CardGenSignatures';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'signatures';
+        let db;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME);
+                    }
+                };
+
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    resolve(db);
+                };
+
+                request.onerror = (event) => {
+                    console.error('IndexedDB error:', event.target.error);
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        async function loadSignature(type) {
+            await openDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.get(type);
+
+                request.onsuccess = () => resolve(request.result || null);
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        async function loadSignaturesToCard() {
+            try {
+                const teacherBlob = await loadSignature('teacher');
+                const teacherImg = document.getElementById('teacherSignatureImg');
+                if (teacherBlob instanceof Blob && teacherImg) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        teacherImg.src = e.target.result;
+                        teacherImg.style.display = 'block';
+                    };
+                    reader.readAsDataURL(teacherBlob);
+                } else if (teacherImg) {
+                    teacherImg.style.display = 'none';
+                }
+
+                const principalBlob = await loadSignature('principal');
+                const principalImg = document.getElementById('principalSignatureImg');
+                if (principalBlob instanceof Blob && principalImg) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        principalImg.src = e.target.result;
+                        principalImg.style.display = 'block';
+                    };
+                    reader.readAsDataURL(principalBlob);
+                } else if (principalImg) {
+                    principalImg.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Failed to load signatures:', err);
+            }
+        }
+
+        // === Global Functions (will be exposed to window) ===
+        let allStudents = [];
+        let cardGen = {};
+
+        function updateCard(student) {
+            const info = cardGen.information || {};
+
+            const set = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val || "";
+            };
+
+            // Clear texts
+            ['studentName', 'studentAge', 'studentGender', 'studentGrade', 'studentSection', 'studentSchoolYear', 'studentLRN', 'studentTrack', 'studentStrand', 'principalame', 'principalame2', 'principalame3', 'teacherName', 'teacherName2'].forEach(id => set(id, ''));
+
+            // Hide signatures
+            const teacherImg = document.getElementById('teacherSignatureImg');
+            const principalImg = document.getElementById('principalSignatureImg');
+            if (teacherImg) teacherImg.style.display = 'none';
+            if (principalImg) principalImg.style.display = 'none';
+
+            if (!student) {
+                adjustTrackStrandDisplay();
+                adjustAllNameSizes();
+                scaleCard();
+                return;
+            }
+
+            // Fill data
+            set('studentName', student.name || '');
+            set('studentAge', student.age || '');
+            set('studentGender', student.gender || '');
+            set('studentLRN', student.lrn || '');
+            set('studentGrade', info.grade || '');
+            set('studentSection', info.section || '');
+            set('studentSchoolYear', info["school-year"] || '');
+            set('studentTrack', info.track || '');
+            set('studentStrand', info.strand || '');
+
+            const adviser = info.adviser || '';
+            const principal = info.principal || '';
+            ['teacherName', 'teacherName2'].forEach(id => set(id, adviser));
+            ['principalame', 'principalame2', 'principalame3'].forEach(id => set(id, principal));
+
+            // Load signatures only when a student is selected
+            loadSignaturesToCard();
+
+            // Final adjustments
+            adjustTrackStrandDisplay();
+            adjustAllNameSizes();
+            scaleCard();
+
+            // Sa loob ng updateCard(student)
+            const months = cardGen.attendanceMonth
+                ? cardGen.attendanceMonth.split(", ").map(m => m.trim())
+                : ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"];
+
+            months.forEach((month, index) => {
+                const monthNum = index + 1;
+                const el = document.getElementById(`month${monthNum}`);
+                if (el) el.textContent = month;
+            });
+        }
+
+        function scaleCard() {
+            const wrapper = document.getElementById("previewWrapper");
+            const card = document.getElementById("printableCard");
+            if (!wrapper || !card) return;
+            const scale = Math.min(wrapper.clientWidth / card.offsetWidth, 1);
+            card.style.transform = `scale(${scale})`;
+            card.style.transformOrigin = 'top left';
+        }
+
+        function fitTextToWrapper(textElement, maxWidth) {
+            if (!textElement || !textElement.textContent.trim()) return;
+
+            const wrapper = textElement.parentElement;
+            if (!wrapper) return;
+
+            wrapper.style.width = 'auto';
+            wrapper.style.maxWidth = 'none';
+
+            let originalFontSize = parseFloat(getComputedStyle(textElement).fontSize);
+            if (isNaN(originalFontSize) || originalFontSize === 0) originalFontSize = 11.3333;
+            textElement.style.fontSize = originalFontSize + 'px';
+
+            const tolerance = 10;
+            if (textElement.scrollWidth <= maxWidth + tolerance) return;
+
+            let low = 5, high = originalFontSize, bestFit = originalFontSize;
+            for (let i = 0; i < 20; i++) {
+                let mid = (low + high) / 2;
+                textElement.style.fontSize = mid.toFixed(2) + 'px';
+                if (textElement.scrollWidth <= maxWidth) {
+                    bestFit = mid;
+                    low = mid;
+                } else {
+                    high = mid;
+                }
+            }
+            textElement.style.fontSize = Math.max(5, bestFit - 0.3).toFixed(2) + 'px';
+        }
+
+        function adjustAllNameSizes() {
+            const names = [
+                { text: document.getElementById('teacherName'), maxWidth: 225 },
+                { text: document.getElementById('teacherName2'), maxWidth: 225 },
+                { text: document.getElementById('principalame'), maxWidth: 205 },
+                { text: document.getElementById('principalame2'), maxWidth: 205 },
+                { text: document.getElementById('principalame3'), maxWidth: 209 },
+                { text: document.getElementById('studentName'), maxWidth: 364.5 }
+            ];
+            names.forEach(item => item.text && fitTextToWrapper(item.text, item.maxWidth));
+        }
+
+        const MODE_KEY = "trackStrandMode";
+        function getMode() { return localStorage.getItem(MODE_KEY) || "single"; }
+
+        function adjustTrackStrandDisplay() {
+            const trackEl = document.getElementById("studentTrack");
+            const strandEl = document.getElementById("studentStrand");
+            const combinedEl = document.getElementById("studentTrackStrand");
+
+            if (!trackEl || !strandEl || !combinedEl) return;
+
+            const originalTrackText = trackEl.dataset.originalTrack || trackEl.textContent.trim();
+            const strandText = strandEl.textContent.trim();
+
+            if (!trackEl.dataset.originalTrack) {
+                trackEl.dataset.originalTrack = originalTrackText;
+            }
+
+            const currentMode = getMode();
+
+            if (currentMode === "single") {
+                let displayText = "";
+                if (originalTrackText && strandText) displayText = `${originalTrackText} - ${strandText}`;
+                else if (originalTrackText) displayText = originalTrackText;
+                else if (strandText) displayText = strandText;
+
+                combinedEl.textContent = displayText;
+                combinedEl.style.display = "block";
+                trackEl.style.display = "none";
+                strandEl.style.display = "none";
+            } else {
+                trackEl.textContent = originalTrackText;
+                if (originalTrackText && strandText) {
+                    trackEl.textContent = `${originalTrackText} -`;
+                }
+                strandEl.textContent = strandText;
+
+                trackEl.style.display = "block";
+                strandEl.style.display = "block";
+                combinedEl.style.display = "none";
+            }
+        }
+
+        function updateButtonVisibility() {
+            const currentMode = getMode();
+            document.getElementById("singleLineBtn").style.display = currentMode === "single" ? "none" : "inline-block";
+            document.getElementById("twoLineBtn").style.display = currentMode === "single" ? "inline-block" : "none";
+        }
+
+        // === Main Initialization ===
+        document.addEventListener("DOMContentLoaded", async () => {
+            const STORAGE_KEY = "CardGen";
+            const dropdown = document.getElementById("studentDropdown");
+            const cardContainer = document.getElementById("cardContainer");
+
+            cardGen = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+
+            // Build allStudents array
+            // Build allStudents array
+            allStudents = [];
+            Object.values(cardGen.students?.boys || {}).forEach(student => {
+                if (student.name?.trim()) {
+                    allStudents.push({
+                        ...student,
+                        gender: student.gender || "MALE"  // Gamitin ang stored gender, fallback lang kung wala
+                    });
+                }
+            });
+            Object.values(cardGen.students?.girls || {}).forEach(student => {
+                if (student.name?.trim()) {
+                    allStudents.push({
+                        ...student,
+                        gender: student.gender || "FEMALE"  // Same sa girls
+                    });
+                }
+            });
+            allStudents.sort((a, b) => a.name.localeCompare(b.name));
+
+            // Load template
+            try {
+                cardContainer.innerHTML = await (await fetch("Front_Card_Template.html")).text();
+            } catch (err) {
+                console.error("Failed to load card template:", err);
+                cardContainer.innerHTML = "<h3>Error: Card template not found!</h3>";
+                return;
+            }
+
+            // Populate dropdown
+            allStudents.forEach(student => {
+                const option = document.createElement("option");
+                option.value = student.name;
+                option.textContent = `${student.name} (${student.gender === "MALE" ? "M" : "F"})`;
+                dropdown.appendChild(option);
+            });
+
+            // Initial card setup
+            updateCard(null);
+
+            // Event listeners
+            dropdown.addEventListener("change", () => {
+                const selectedName = dropdown.value;
+                const student = allStudents.find(s => s.name === selectedName);
+                updateCard(student);
+            });
+
+            document.getElementById("singleLineBtn").addEventListener("click", () => {
+                localStorage.setItem(MODE_KEY, "single");
+                updateButtonVisibility();
+                adjustTrackStrandDisplay();
+            });
+
+            document.getElementById("twoLineBtn").addEventListener("click", () => {
+                localStorage.setItem(MODE_KEY, "two");
+                updateButtonVisibility();
+                adjustTrackStrandDisplay();
+            });
+
+            updateButtonVisibility();
+
+            window.addEventListener("resize", scaleCard);
+
+            // === PDF Functions ===
+            async function captureCard() {
+                const card = document.getElementById("printableCard");
+                card.style.transform = "scale(1)";
+                card.style.transformOrigin = "top left";
+                await new Promise(r => setTimeout(r, 100));
+                const canvas = await html2canvas(card, {
+                    scale: 3,
+                    useCORS: true,
+                    backgroundColor: null,
+                    allowTaint: false
+                });
+                return canvas.toDataURL("image/jpeg", 0.95);
+            }
+
+            window.downloadSinglePDF = async function () {
+                const name = dropdown.value;
+                if (!name) return showToast("Select a student first!");
+                const student = allStudents.find(s => s.name === name);
+                updateCard(student);
+                await new Promise(r => setTimeout(r, 200)); // ensure signatures load
+                const img = await captureCard();
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "letter" });
+                pdf.addImage(img, "JPEG", 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
+                pdf.save(`${name.replace(/[\\/:*?"<>|]/g, "_")}_Card.pdf`);
+            };
+
+            window.downloadAllPDFs = async function () {
+                if (allStudents.length === 0) return showToast("No students!");
+                const progressBar = document.getElementById("progressBar");
+                const progressContainer = document.getElementById("progressContainer");
+                progressContainer.style.display = "block";
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "letter" });
+
+                for (let i = 0; i < allStudents.length; i++) {
+                    updateCard(allStudents[i]);
+                    await new Promise(r => setTimeout(r, 200));
+                    const img = await captureCard();
+                    if (i > 0) pdf.addPage();
+                    pdf.addImage(img, "JPEG", 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
+                    const percent = Math.round(((i + 1) / allStudents.length) * 100);
+                    progressBar.style.width = percent + "%";
+                    progressBar.textContent = percent + "%";
+                }
+
+                pdf.save("All_Students_Cards.pdf");
+                progressContainer.style.display = "none";
+                showToast("All cards generated!");
+            };
+
+            document.getElementById("downloadSingleBtn").addEventListener("click", downloadSinglePDF);
+            document.getElementById("downloadAllBtn").addEventListener("click", downloadAllPDFs);
+
+            // === Load Sidebar AFTER DOM is ready ===
+            if (typeof loadSidebar === "function") {
+                loadSidebar("front_card c.html");
+            }
+
+            // Expose functions globally (in case other scripts need them)
+            window.updateCard = updateCard;
+            window.adjustTrackStrandDisplay = adjustTrackStrandDisplay;
+            window.adjustAllNameSizes = adjustAllNameSizes;
+            window.scaleCard = scaleCard;
+        });
+    </script>
+</body>
+
+</html>

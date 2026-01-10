@@ -1,0 +1,25 @@
+[
+  {
+    "keywords": ["Hello", "Hi"],
+    "answer": "Hello! How can I help you today?",
+    "noSuggest": "true"
+  },
+  {
+    "keywords": ["What"],
+    "answer": "I can give you info about our system and processes.\nFirst, \ninput student grades.\nThen, generate the report card."
+  },
+  {
+    "keywords": ["Tutorial", "Work", "How"],
+    "answer": "To understand how a system work/function, type = (Page_Tutorial). \nExample: Attendance_Tutorial"
+  },
+  {
+    "keywords": ["Attendance_Tutorial"],
+    "answer": "Step 1: Ganito \nStep 2: Ganyan \nStep 3: Done"
+  },
+  {
+    "keywords": ["Attedance"],
+    "answer": "Sa attendance mag input ng attendance ng isang student. Tapos kung ano ang ininput, ito ang lalabas sa Front Card. Saan ito makikita? Sa Sidebar. \nMayroon rin ang CardGen ng Certificate of Attendance, kung saan nakabatay lamang sa iyong i-input na attendance ng bawat student. Saan ito makikita? Sa Features, kung saan nandoon rin ang Front Card.",
+    "Trigger": "Click here",
+    "Location": "Index.html"
+  }
+]

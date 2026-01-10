@@ -1,0 +1,21 @@
+.toast-message {
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 20px;
+  z-index: 1070;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  text-align: center;
+  font-family: Lexend;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.toast-show {
+  opacity: 1;
+}

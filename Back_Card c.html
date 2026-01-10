@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Back Card Template</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="Toast.css">
+    <link rel="stylesheet" href="root.css">
+
+    <style>
+        body {
+            background: var(--background-color);
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .navbar {
+            z-index: 1060 !important;
+            font-family: 'Oswald', sans-serif;
+            background: var(--primary-color) !important;
+        }
+
+        .main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s;
+            padding-top: 0;
+        }
+
+        @media (min-width: 992px) {
+            .main-content {
+                margin-left: 250px;
+                padding-right: 2rem;
+            }
+        }
+
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: var(--secondary-color);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 1050;
+            font-family: 'Poppins', sans-serif;
+            padding-top: 60px;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        @media (min-width: 992px) {
+            .sidebar {
+                transform: translateX(0) !important;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .sidebar {
+                position: absolute;
+                height: 100vh;
+            }
+        }
+
+        .sidebar .nav-link {
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+            color: var(--primary-color);
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            transform: translateX(5px);
+        }
+
+        .sidebar .nav-link.active {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            font-weight: bold;
+            transform: translateX(5px);
+            pointer-events: none;
+        }
+
+        .sidebar .nav-item p {
+            font-family: Poppins;
+            font-weight: bold;
+            color: var(--primarydark-color);
+        }
+
+        #toggleBtn {
+            color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        #toggleBtn:hover {
+            background-color: var(--secondary-color) !important;
+            color: var(--primary-color) !important;
+            border-color: var(--secondary-color) !important;
+        }
+
+        @media (min-width: 992px) {
+            #toggleBtn {
+                display: none;
+            }
+        }
+
+        .container {
+            padding: 0 15px;
+            overflow: hidden;
+        }
+
+        #cardContainer {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        #printableCard {
+            position: relative;
+            width: 279.4mm;
+            height: 215.9mm;
+            overflow: hidden;
+        }
+
+        #front-card {
+            width: 100%;
+            height: 100%;
+        }
+
+        .overlay-text {
+            position: absolute;
+            top: 50px;
+            left: 250px;
+            color: black;
+            font-family: 'Times New Roman';
+            white-space: nowrap;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core1_1st {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core1_2nd {
+            top: 107.5px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core1_3rd {
+            top: 122px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core1_4th {
+            top: 137px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core1_5th {
+            top: 151px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core1_6th {
+            top: 165px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core1_7th {
+            top: 179px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core1_8th {
+            top: 194px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core2_1st {
+            top: 438px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core2_2nd {
+            top: 453px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core2_3rd {
+            top: 467px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core2_4th {
+            top: 481px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core2_5th {
+            top: 496px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core2_6th {
+            top: 511px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core2_7th {
+            top: 525px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Core2_8th {
+            top: 540px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied1_1st {
+            top: 223px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied1_2nd {
+            top: 237px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied1_3rd {
+            top: 251px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied1_4th {
+            top: 266px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied1_5th {
+            top: 280px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied1_6th {
+            top: 294px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied1_7th {
+            top: 309px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied1_8th {
+            top: 323px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied2_1st {
+            top: 568px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied2_2nd {
+            top: 583px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied2_3rd {
+            top: 596px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied2_4th {
+            top: 611px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied2_5th {
+            top: 625px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied2_6th {
+            top: 639px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied2_7th {
+            top: 654px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Applied2_8th {
+            top: 668px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #Quarter1_1st {
+            top: 90px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_2nd {
+            top: 104.5px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_3rd {
+            top: 119px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_4th {
+            top: 134px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_5th {
+            top: 147px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_6th {
+            top: 162px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_7th {
+            top: 176px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_8th {
+            top: 189px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_9th {
+            top: 220px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_10th {
+            top: 234px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_11th {
+            top: 248px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_12th {
+            top: 263px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_13th {
+            top: 277px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_14th {
+            top: 291px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_15th {
+            top: 306px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter1_16th {
+            top: 320px;
+            left: 64px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_1st {
+            top: 90px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_2nd {
+            top: 104.5px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_3rd {
+            top: 119px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_4th {
+            top: 134px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_5th {
+            top: 147px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_6th {
+            top: 162px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_7th {
+            top: 176px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_8th {
+            top: 189px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_9th {
+            top: 220px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_10th {
+            top: 234px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_11th {
+            top: 248px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_12th {
+            top: 263px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_13th {
+            top: 277px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_14th {
+            top: 291px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_15th {
+            top: 306px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter2_16th {
+            top: 320px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_1st {
+            top: 90px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_2nd {
+            top: 104.5px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_3rd {
+            top: 119px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_4th {
+            top: 134px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_5th {
+            top: 147px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_6th {
+            top: 162px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_7th {
+            top: 176px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_8th {
+            top: 189px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_9th {
+            top: 220px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_10th {
+            top: 234px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_11th {
+            top: 248px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_12th {
+            top: 263px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_13th {
+            top: 277px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_14th {
+            top: 291px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_15th {
+            top: 306px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter3_16th {
+            top: 320px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_1st {
+            top: 90px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_2nd {
+            top: 104.5px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_3rd {
+            top: 119px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_4th {
+            top: 134px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_5th {
+            top: 147px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_6th {
+            top: 162px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_7th {
+            top: 176px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_8th {
+            top: 189px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_9th {
+            top: 220px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_10th {
+            top: 234px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_11th {
+            top: 248px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_12th {
+            top: 263px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_13th {
+            top: 277px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_14th {
+            top: 291px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_15th {
+            top: 306px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #Quarter4_16th {
+            top: 320px;
+            left: 108px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_1st {
+            top: 90px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_2nd {
+            top: 104.5px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_3rd {
+            top: 119px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_4th {
+            top: 134px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_5th {
+            top: 147px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_6th {
+            top: 162px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_7th {
+            top: 176px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_8th {
+            top: 189px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_9th {
+            top: 220px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_10th {
+            top: 234px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_11th {
+            top: 248px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_12th {
+            top: 263px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_13th {
+            top: 277px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_14th {
+            top: 291px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_15th {
+            top: 306px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem1_16th {
+            top: 320px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #FinalSem2_1st {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_2nd {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_3rd {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_4th {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_5th {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_6th {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_7th {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_8th {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_9th {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_10th {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_12th {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_13th {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_14th {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_15th {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #FinalSem2_16th {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        .overlay-text #GenAve1 {
+            top: 334px;
+            left: 172px;
+            position: absolute;
+            font-size: small;
+        }
+
+        .overlay-text #GenAve2 {
+            top: 93px;
+            left: -199px;
+            position: absolute;
+            font-size: xx-small;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #printableCard,
+            #printableCard * {
+                visibility: visible;
+            }
+
+            #printableCard {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 279.4mm;
+                height: 215.9mm;
+                margin: 0;
+            }
+
+            @page {
+                size: letter landscape;
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .button-row {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            .button-row .btn-group-left,
+            .button-row .btn-danger,
+            .btn-primary,
+            .btn-success,
+            #btnAll {
+                width: 100%;
+            }
+
+            #btnQ1,
+            #btnQ2,
+            #btnQ3,
+            #btnQ4 {
+                width: 49%;
+            }
+
+            .button-row .btn-group-left .btn {
+                flex: 1;
+            }
+
+            .button-row>.ms-auto {
+                display: none;
+                /* Hide spacer on mobile */
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-light bg-primary shadow-sm fixed-top" data-bs-theme="dark">
+        <div class="container-fluid">
+            <div
+                class="d-flex flex-column flex-lg-row w-100 align-items-start align-items-lg-center justify-content-lg-between">
+                <div class="d-flex align-items-center w-100 w-lg-auto justify-content-start mb-2 mb-lg-0">
+                    <button class="btn btn-outline-secondary me-2 d-lg-none" id="toggleBtn">☰</button>
+                    <span class="navbar-brand mb-0 h1 d-none d-lg-inline" id="Hi">CardGen: From Grade Consolidation to
+                        Printable Report Card for Senior High School</span>
+                    <span class="navbar-brand mb-0 h1 d-inline d-lg-none" id="Hi">CardGen 2025</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar collapsed" id="sidebar">
+        <ul class="nav flex-column px-3">
+            <div id="sidebar-container"></div>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="container-fluid container">
+            <div class="row">
+                <div class="col-12">
+                    <h1>Card</h1>
+                    <select id="studentDropdown" class="form-select">
+                        <option value="">Blank (Select Student)</option>
+                    </select>
+                    <br>
+                    <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+                        <button id="downloadSingleBtn" class="btn btn-primary">Download Current Card</button>
+                        <button id="downloadAllBtn" class="btn btn-success">Download All Cards</button>
+
+                        <button id="btnQ1" class="btn btn-outline-info">1st Quarter</button>
+                        <button id="btnQ2" class="btn btn-outline-info">2nd Quarter + Final</button>
+                        <button id="btnQ3" class="btn btn-outline-info">3rd Quarter</button>
+                        <button id="btnQ4" class="btn btn-outline-info">4th Quarter + Final</button>
+                        <button id="btnAll" class="btn btn-outline-secondary">All Data</button>
+                    </div>
+
+                    <div id="progressContainer" class="my-3" style="display:none;">
+                        <div class="progress">
+                            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated"
+                                role="progressbar" style="width: 0%">0%</div>
+                        </div>
+                        <p class="text-center mt-2 fw-semibold text-light">Generating PDFs... Please wait</p>
+                    </div>
+                    <div id="previewWrapper">
+                        <div id="cardContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script src="loader.js"></script>
+
+    <script>
+        loadSidebar("Back_Card c.html");
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const STORAGE_KEY = "CardGen";
+            const dropdown = document.getElementById("studentDropdown");
+            const cardContainer = document.getElementById("cardContainer");
+
+            function getCardGen() {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+            }
+
+            const cardGen = getCardGen();
+
+            // GET ALL STUDENTS
+            const allStudents = [];
+            Object.values(cardGen.students?.boys || {}).forEach(s => {
+                if (s.name?.trim()) allStudents.push({ ...s, gender: "MALE" });
+            });
+            Object.values(cardGen.students?.girls || {}).forEach(s => {
+                if (s.name?.trim()) allStudents.push({ ...s, gender: "FEMALE" });
+            });
+            allStudents.sort((a, b) => a.name.localeCompare(b.name));
+
+            // LOAD TEMPLATE
+            try {
+                cardContainer.innerHTML = await (await fetch("Back_Card_Template.html")).text();
+            } catch (err) {
+                console.error("Failed to load template:", err);
+                cardContainer.innerHTML = "<h3 style='color:red'>Error: Back_Card_Template.html not found!</h3>";
+                return;
+            }
+
+            // DROPDOWN
+            allStudents.forEach(student => {
+                const opt = document.createElement("option");
+                opt.value = student.name;
+                opt.textContent = `${student.name} (${student.gender === "MALE" ? "M" : "F"})`;
+                dropdown.appendChild(opt);
+            });
+
+            // SET TEXT HELPER
+            const set = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val || "";
+            };
+
+            // UPDATE BACK CARD — 100% GUMAGANA NA LAHAT NG APPLIED1_1st TO 8th!
+            function updateBackCard(student) {
+                const set = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = val || "";
+                };
+
+                // CLEAR ALL FIRST
+                const suffixes = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th', '13th', '14th', '15th', '16th'];
+                suffixes.forEach(suffix => {
+                    set(`Core1_${suffix}`, "");
+                    set(`Applied1_${suffix}`, "");
+                    set(`Quarter1_${suffix}`, "");
+                    set(`Quarter2_${suffix}`, "");
+                    set(`FinalSem1_${suffix}`, "");
+                });
+                set("GenAve1", "");
+
+                if (!student || !student.grade?.sem1) return;
+
+                const sem1 = student.grade.sem1;
+                const coreNames = cardGen.subject?.sem1?.core || {};
+                const appliedNames = cardGen.subject?.sem1?.applied || {};
+
+                // CORE SUBJECTS (1st to 8th)
+                for (let i = 1; i <= 8; i++) {
+                    const key = `subject${i}`;
+                    const suffix = suffixes[i - 1];  // 0 to 7 → 1st to 8th
+                    const name = coreNames[key] || "";
+                    const g = sem1.core?.[key] || {};
+
+                    set(`Core1_${suffix}`, name);
+                    set(`Quarter1_${suffix}`, g["1st"] || "");
+                    set(`Quarter2_${suffix}`, g["2nd"] || "");
+                    set(`FinalSem1_${suffix}`, g["final"] || "");
+                }
+
+                // APPLIED SUBJECTS (1st to 8th) — FIXED NA!
+                for (let i = 1; i <= 8; i++) {
+                    const key = `subject${i}`;
+                    const suffix = suffixes[i - 1];  // 1st to 8th (hindi na +8)
+                    const name = appliedNames[key] || "";
+                    const g = sem1.applied?.[key] || {};
+
+                    set(`Applied1_${suffix}`, name);              // Applied1_1st to Applied1_8th
+                    set(`Quarter1_${i + 8}th`, g["1st"] || "");   // Quarter1_9th to Quarter1_16th
+                    set(`Quarter2_${i + 8}th`, g["2nd"] || "");
+                    set(`FinalSem1_${i + 8}th`, g["final"] || "");
+                }
+
+                // GENERAL AVERAGE
+                set("GenAve1", sem1.genAve || "");
+            }
+            // INITIAL BLANK
+            updateBackCard(null);
+            scaleCard();
+
+            // DROPDOWN CHANGE
+            dropdown.addEventListener("change", () => {
+                const name = dropdown.value;
+                const student = allStudents.find(s => s.name === name);
+                updateBackCard(student);
+                scaleCard();
+            });
+
+            // SCALE CARD
+            function scaleCard() {
+                const wrapper = document.getElementById("previewWrapper");
+                const card = document.getElementById("printableCard");
+                if (!wrapper || !card) return;
+                const scale = Math.min(wrapper.clientWidth / card.offsetWidth, 1);
+                card.style.transform = `scale(${scale})`;
+                card.style.transformOrigin = "top left";
+            }
+            window.addEventListener("resize", scaleCard);
+
+            // DOWNLOAD SINGLE
+            async function downloadSinglePDF() {
+                const name = dropdown.value;
+                if (!name) return showToast("Please select a student first!");
+                const student = allStudents.find(s => s.name === name);
+                if (!student) return showToast("Student not found.");
+
+                updateBackCard(student);
+                await new Promise(r => setTimeout(r, 100));
+
+                const card = document.getElementById("printableCard");
+                card.style.transform = "scale(1)";
+                card.style.transformOrigin = "top left";
+
+                const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
+                const imgData = canvas.toDataURL("image/jpeg", 0.95);
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: [279.4, 215.9] });
+                pdf.addImage(imgData, "JPEG", 0, 0, 279.4, 215.9);
+                pdf.save(`${name}_BackCard.pdf`);
+            }
+
+            // DOWNLOAD ALL
+            async function downloadAllPDFs() {
+                if (allStudents.length === 0) return showToast("No students found!");
+
+                const progressContainer = document.getElementById("progressContainer");
+                const progressBar = document.getElementById("progressBar");
+                progressContainer.style.display = "block";
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: [279.4, 215.9] });
+
+                for (let i = 0; i < allStudents.length; i++) {
+                    updateBackCard(allStudents[i]);
+                    await new Promise(r => setTimeout(r, 100));
+
+                    const card = document.getElementById("printableCard");
+                    card.style.transform = "scale(1)";
+                    card.style.transformOrigin = "top left";
+
+                    const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
+                    const imgData = canvas.toDataURL("image/jpeg", 0.95);
+
+                    if (i > 0) pdf.addPage();
+                    pdf.addImage(imgData, "JPEG", 0, 0, 279.4, 215.9);
+
+                    const percent = Math.round(((i + 1) / allStudents.length) * 100);
+                    progressBar.style.width = percent + "%";
+                    progressBar.textContent = percent + "%";
+                }
+
+                pdf.save("All_BackCards.pdf");
+                progressContainer.style.display = "none";
+                showToast("All back cards downloaded!");
+            }
+
+            document.getElementById("downloadSingleBtn").addEventListener("click", downloadSinglePDF);
+            document.getElementById("downloadAllBtn").addEventListener("click", downloadAllPDFs);
+        });
+    </script>
+
+    <script src="SideBar-NavBar.js"></script>
+    <script src="Logout.js"></script>
+    <script src="Toast.js"></script>
+</body>
+
+</html>

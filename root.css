@@ -1,0 +1,33 @@
+/* Fjalla One */
+@import url(https://fonts.googleapis.com/css2?family=Fjalla+One&family=Lexend:wght@100..900&display=swap);
+/* Oswald */
+@import url(https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap);
+/* Lexend */
+@import url(https://fonts.googleapis.com/css2?family=Fjalla+One&family=Lexend:wght@100..900&display=swap);
+
+/* :root {
+    --primary-color: #0d6efd;
+    --primarydark-color: #0066bd;
+    --secondary-color: #ffffff;
+    --background-color: #f1f3f4;
+    --accent-color: #82CAFF;
+    --shadow: rgba(0,0,0,0.65);
+} */
+
+:root {
+  --primary-color: #0078e9;
+
+  --primarydark-color: color-mix(in srgb, var(--primary-color) 80%, black);
+
+  --accent-color: color-mix(in srgb, var(--primary-color) 40%, white);
+
+  --secondary-color: #ffffff;
+  --dark-mode-color: #000000;
+  --background-color: #f1f3f4;
+
+  --danger: #8f0000;
+}
+
+.navbar span {
+  cursor: pointer;
+}
