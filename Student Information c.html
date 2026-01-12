@@ -1378,6 +1378,38 @@
                             allowInvalid: true
                         }
                     ],
+                    afterValidate: function (isValid, value, row, col, prop) {
+                        const cell = this.getCell(row, col);
+                        if (!cell) return;
+
+                        // I-clear muna ang dating style
+                        cell.style.backgroundColor = '';
+                        cell.style.border = '';
+                        cell.title = '';
+
+                        if (!isValid && value !== '' && value != null) {
+                            // Light red background + tooltip
+                            cell.style.backgroundColor = '#ffe6e6';  // pwede mo palitan ng #ffcccc o iba
+                            cell.style.border = '1px solid #ff4d4d';
+
+                            let message = '';
+                            switch (col) {
+                                case 0: message = "Name is required or duplicate detected"; break;
+                                case 1: message = "Age must be a 2-digit number (e.g. 17)"; break;
+                                case 3: message = "LRN must be exactly 12 digits"; break;
+                                case 5: message = "Parent number must start with 09 and have 11 digits"; break;
+                                case 6: message = "Invalid Gmail format (must end with @gmail.com)"; break;
+                            }
+                            cell.title = message;
+                        }
+                    },
+                    afterInit: function () {
+                        setTimeout(() => {
+                            this.validateCells(() => {
+                                this.render();
+                            });
+                        }, 150);  // medyo mas matagal para siguradong tapos na ang rendering
+                    },
                     licenseKey: "non-commercial-and-evaluation",
 
                     afterChange: function (changes, source) {
@@ -1525,7 +1557,7 @@
                     // ================= DOWNLOAD SAMPLE/TEMPLATE FILE =================
                     showToast("No data found. Downloading template file instead...", "info");
                     // Path sa template file mo (baguhin depende sa location)
-                    const templatePath = "hi.xlsx"; // ← ilagay mo dito yung tamang path
+                    const templatePath = "CardGen_Template.xlsx"; // ← ilagay mo dito yung tamang path
                     // Gumamit ng <a> download trick
                     const link = document.createElement('a');
                     link.href = templatePath;

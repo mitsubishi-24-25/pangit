@@ -11,9 +11,6 @@
     <link rel="stylesheet" href="Toast.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@14.3.0/dist/handsontable.full.min.css">
 
-    <!-- Reliable SheetJS library for Excel import/export -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
     <style>
         body {
             background: var(--background-color);
@@ -229,6 +226,27 @@
                 margin-left: -1rem;
             }
         }
+
+        @media (max-width: 768px) {
+            .button-row {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            .button-row .btn-group-left,
+            .button-row .btn-danger {
+                width: 100%;
+            }
+
+            .button-row .btn-group-left .btn {
+                flex: 1;
+            }
+
+            .button-row>.ms-auto {
+                display: none;
+                /* Hide spacer on mobile */
+            }
+        }
     </style>
 </head>
 
@@ -257,7 +275,16 @@
         <div class="container-fluid container">
             <div class="row">
                 <div class="col-12">
-                    <h5>Attendance Months Selection</h5>
+
+                    <div class="button-row d-flex flex-wrap gap-3 align-items-center mb-4">
+                        <div class="btn-group-left d-flex flex-wrap gap-2">
+                            <h5>Attendance Months Selection</h5>
+                        </div>
+                        <div class="ms-auto"></div>
+                        <button class="btn btn-danger flex-shrink-0" onclick="showClearAttendanceConfirmation()">
+                            Clear All Attendance Data
+                        </button>
+                    </div>
                     <div class="month-selection">
                         <div class="row g-3">
                             <div class="col-sm-3 d-flex align-items-center">
@@ -316,12 +343,28 @@
                     <h5>Females Data</h5>
                     <div id="girlsHot" class="hot-container student-table"></div>
 
-                    <!-- Import/Export Buttons -->
-                    <div class="d-flex justify-content-end mb-4 gap-2">
-                        <button id="exportBtn" class="btn btn-primary">Export to Excel</button>
-                        <button id="importBtn" class="btn btn-primary">Import from Excel</button>
-                        <input type="file" id="importFile" accept=".xlsx,.xls" style="display: none;">
+                    <!-- REUSABLE CONFIRMATION MODAL (same as reference page) -->
+                    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true" style="z-index: 9999;">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="confirmModalTitle">Confirm Action</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" id="confirmModalBody">
+                                    Are you sure you want to proceed?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-danger" id="confirmModalConfirmBtn"
+                                        autofocus>Confirm</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -342,717 +385,719 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-    const STORAGE_KEY = "CardGen";
+            const STORAGE_KEY = "CardGen";
 
-    if (!localStorage.getItem(STORAGE_KEY)) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            information: {},
-            subject: { sem1: { core: {}, applied: {} }, sem2: { core: {}, applied: {} } },
-            students: { boys: {}, girls: {} },
-            chathistory: {},
-            attendanceMonth: ""
-        }));
-    }
+            if (!localStorage.getItem(STORAGE_KEY)) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    information: {},
+                    subject: { sem1: { core: {}, applied: {} }, sem2: { core: {}, applied: {} } },
+                    students: { boys: {}, girls: {} },
+                    chathistory: {},
+                    attendanceMonth: ""
+                }));
+            }
 
-    function getCardGen() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
-    function saveCardGen(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+            function getCardGen() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+            function saveCardGen(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 
-    let boysHotInstance = null;
-    let girlsHotInstance = null;
-    let schoolDaysHotInstance = null;
+            let boysHotInstance = null;
+            let girlsHotInstance = null;
+            let schoolDaysHotInstance = null;
 
-    // === MONTH SELECTION LOGIC ===
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    let startMonth = "";
-    let endMonth = "";
+            // === MONTH SELECTION LOGIC ===
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            let startMonth = "";
+            let endMonth = "";
 
-    const savedMonths = getCardGen().attendanceMonth || "";
-    if (savedMonths) {
-        const monthList = savedMonths.split(', ').filter(m => m.trim());
-        if (monthList.length > 0) {
-            startMonth = monthList[0];
-            endMonth = monthList[monthList.length - 1];
-        }
-    }
-
-    const startSelect = document.getElementById('startMonth');
-    const endSelect = document.getElementById('endMonth');
-
-    startSelect.value = startMonth;
-    endSelect.value = endMonth;
-
-    function generateMonthSequence(start, end) {
-        if (!start || !end || start === end) return "";
-        const startIndex = months.indexOf(start);
-        const endIndex = months.indexOf(end);
-        let sequence = [];
-        if (endIndex >= startIndex) {
-            sequence = months.slice(startIndex, endIndex + 1);
-        } else {
-            sequence = months.slice(startIndex).concat(months.slice(0, endIndex + 1));
-        }
-        return sequence.join(', ');
-    }
-
-    function updateEndOptions() {
-        const selectedStart = startSelect.value;
-        endSelect.innerHTML = '<option value="">Select Month</option>';
-        const availableMonths = selectedStart ? months.filter(m => m !== selectedStart) : months;
-        availableMonths.forEach(m => endSelect.add(new Option(m, m)));
-    }
-
-    function toggleEndMonth() {
-        endSelect.disabled = !startSelect.value;
-        if (endSelect.disabled) endSelect.value = "";
-    }
-
-    function saveAttendanceMonths() {
-        const start = startSelect.value;
-        const end = endSelect.value;
-        let data = getCardGen();
-
-        if (start && end && start !== end) {
-            data.attendanceMonth = generateMonthSequence(start, end);
-        } else {
-            data.attendanceMonth = "";
-        }
-
-        saveCardGen(data);
-        refreshAllTables();
-    }
-
-    updateEndOptions();
-    toggleEndMonth();
-
-    if (endMonth && endSelect.value !== endMonth) {
-        const optionExists = Array.from(endSelect.options).some(opt => opt.value === endMonth);
-        if (!optionExists && endMonth) endSelect.add(new Option(endMonth, endMonth));
-        endSelect.value = endMonth;
-    }
-
-    startSelect.addEventListener('change', () => {
-        updateEndOptions();
-        toggleEndMonth();
-        if (endSelect.value === startSelect.value) endSelect.value = "";
-        saveAttendanceMonths();
-    });
-
-    endSelect.addEventListener('change', () => {
-        if (endSelect.value === startSelect.value) endSelect.value = "";
-        saveAttendanceMonths();
-    });
-
-    // ==============================================
-    //   SCHOOL DAYS CONFIG - NOW USING HANDSONTABLE
-    // ==============================================
-    let globalSchoolDaysConfig = {
-        month1: "", month2: "", month3: "", month4: "",
-        month5: "", month6: "", month7: "", month8: "",
-        month9: "", month10: "", month11: "", month12: ""
-    };
-
-    function loadGlobalSchoolDaysConfig() {
-        const data = getCardGen();
-        if (data.schoolDaysConfig) {
-            Object.assign(globalSchoolDaysConfig, data.schoolDaysConfig);
-        }
-    }
-
-    function saveGlobalSchoolDaysConfig() {
-        const data = getCardGen();
-        data.schoolDaysConfig = { ...globalSchoolDaysConfig };
-        saveCardGen(data);
-    }
-
-    loadGlobalSchoolDaysConfig();
-
-    function getDisplayedMonths() {
-        const saved = getCardGen().attendanceMonth || "";
-        if (!saved) return Array(12).fill("");
-        const monthList = saved.split(', ').filter(m => m.trim());
-        const displayed = Array(12).fill("");
-        monthList.forEach((month, index) => {
-            if (index < 12) displayed[index] = month;
-        });
-        return displayed;
-    }
-
-    function createSchoolDaysConfigTable() {
-        const container = document.getElementById('schoolDaysConfigHot');
-        if (!container) return null;
-
-        const displayed = getDisplayedMonths();
-
-        const headerRow = ['', ...displayed];
-        const dataRow = ['School Days', ...Array(12).fill('').map((_, i) => 
-            globalSchoolDaysConfig[`month${i+1}`] || ''
-        )];
-
-        const hot = new Handsontable(container, {
-            data: [headerRow, dataRow],
-            rowHeaders: false,
-            colHeaders: true,
-            stretchH: 'all',
-            width: '100%',
-            height: 'auto',
-            minSpareRows: 0,
-            licenseKey: 'non-commercial-and-evaluation',
-            columns: [
-                { 
-                    type: 'text', 
-                    readOnly: true, 
-                    width: 140,
-                    className: 'htCenter htBold'
-                },
-                ...Array(12).fill({
-                    type: 'numeric',
-                    numericFormat: { pattern: '0' },
-                    validator: function(value, callback) {
-                        if (value === '' || value === null || value === undefined) return callback(true);
-                        const num = Number(value);
-                        callback(!isNaN(num) && Number.isInteger(num) && num >= 0 && num <= 99);
-                    },
-                    allowInvalid: false
-                })
-            ],
-            cells(row, col) {
-                const cellProperties = {};
-                if (row === 0 || col === 0) {
-                    cellProperties.readOnly = true;
-                    cellProperties.className = 'htCenter htBold';
-                } else {
-                    cellProperties.className = 'htCenter';
+            const savedMonths = getCardGen().attendanceMonth || "";
+            if (savedMonths) {
+                const monthList = savedMonths.split(', ').filter(m => m.trim());
+                if (monthList.length > 0) {
+                    startMonth = monthList[0];
+                    endMonth = monthList[monthList.length - 1];
                 }
-                return cellProperties;
-            },
-            afterChange(changes, source) {
-                if (!changes || source === 'loadData' || source === 'autoCalc') return;
+            }
 
-                changes.forEach(([row, col, oldValue, newValue]) => {
-                    if (row === 1 && col > 0) { // only edit school days row
-                        const monthKey = `month${col}`;
-                        globalSchoolDaysConfig[monthKey] = newValue === '' ? '' : Number(newValue);
+            const startSelect = document.getElementById('startMonth');
+            const endSelect = document.getElementById('endMonth');
+
+            startSelect.value = startMonth;
+            endSelect.value = endMonth;
+
+            function generateMonthSequence(start, end) {
+                if (!start || !end || start === end) return "";
+                const startIndex = months.indexOf(start);
+                const endIndex = months.indexOf(end);
+                let sequence = [];
+                if (endIndex >= startIndex) {
+                    sequence = months.slice(startIndex, endIndex + 1);
+                } else {
+                    sequence = months.slice(startIndex).concat(months.slice(0, endIndex + 1));
+                }
+                return sequence.join(', ');
+            }
+
+            function updateEndOptions() {
+                const selectedStart = startSelect.value;
+                endSelect.innerHTML = '<option value="">Select Month</option>';
+                const availableMonths = selectedStart ? months.filter(m => m !== selectedStart) : months;
+                availableMonths.forEach(m => endSelect.add(new Option(m, m)));
+            }
+
+            function toggleEndMonth() {
+                endSelect.disabled = !startSelect.value;
+                if (endSelect.disabled) endSelect.value = "";
+            }
+
+            function saveAttendanceMonths() {
+                const start = startSelect.value;
+                const end = endSelect.value;
+                let data = getCardGen();
+
+                if (start && end && start !== end) {
+                    data.attendanceMonth = generateMonthSequence(start, end);
+                } else {
+                    data.attendanceMonth = "";
+                }
+
+                saveCardGen(data);
+                refreshAllTables();
+            }
+
+            updateEndOptions();
+            toggleEndMonth();
+
+            if (endMonth && endSelect.value !== endMonth) {
+                const optionExists = Array.from(endSelect.options).some(opt => opt.value === endMonth);
+                if (!optionExists && endMonth) endSelect.add(new Option(endMonth, endMonth));
+                endSelect.value = endMonth;
+            }
+
+            startSelect.addEventListener('change', () => {
+                updateEndOptions();
+                toggleEndMonth();
+                if (endSelect.value === startSelect.value) endSelect.value = "";
+                saveAttendanceMonths();
+
+                autoInitializeAbsentDaysForSelectedMonths();
+                refreshAllTables();
+            });
+
+            endSelect.addEventListener('change', () => {
+                if (endSelect.value === startSelect.value) endSelect.value = "";
+                saveAttendanceMonths();
+
+                // ← Add this:
+                autoInitializeAbsentDaysForSelectedMonths();
+                refreshAllTables();   // optional but recommended
+            });
+
+            // ==============================================
+            //   SCHOOL DAYS CONFIG - NOW USING HANDSONTABLE
+            // ==============================================
+            let globalSchoolDaysConfig = {
+                month1: "", month2: "", month3: "", month4: "",
+                month5: "", month6: "", month7: "", month8: "",
+                month9: "", month10: "", month11: "", month12: ""
+            };
+
+            function loadGlobalSchoolDaysConfig() {
+                const data = getCardGen();
+                if (data.schoolDaysConfig) {
+                    Object.assign(globalSchoolDaysConfig, data.schoolDaysConfig);
+                }
+            }
+
+            function saveGlobalSchoolDaysConfig() {
+                const data = getCardGen();
+                data.schoolDaysConfig = { ...globalSchoolDaysConfig };
+                saveCardGen(data);
+            }
+
+            loadGlobalSchoolDaysConfig();
+
+            function getDisplayedMonths() {
+                const saved = getCardGen().attendanceMonth || "";
+                if (!saved) return Array(12).fill("");
+                const monthList = saved.split(', ').filter(m => m.trim());
+                const displayed = Array(12).fill("");
+                monthList.forEach((month, index) => {
+                    if (index < 12) displayed[index] = month;
+                });
+                return displayed;
+            }
+
+            function createSchoolDaysConfigTable() {
+                const container = document.getElementById('schoolDaysConfigHot');
+                if (!container) return null;
+
+                const displayed = getDisplayedMonths();
+
+                const headerRow = ['Months:', ...displayed];
+                const dataRow = ['School Days:', ...Array(12).fill('').map((_, i) =>
+                    globalSchoolDaysConfig[`month${i + 1}`] || ''
+                )];
+
+                const hot = new Handsontable(container, {
+                    data: [headerRow, dataRow],
+                    rowHeaders: false,
+                    colHeaders: true,
+                    stretchH: 'all',
+                    width: '100%',
+                    height: 'auto',
+                    minSpareRows: 0,
+                    licenseKey: 'non-commercial-and-evaluation',
+                    columns: [
+                        {
+                            type: 'text',
+                            readOnly: true,
+                            width: 140,
+                            className: 'htCenter htBold'
+                        },
+                        ...Array(12).fill({
+                            type: 'text',                     // ← changed to text
+                            className: 'htCenter',
+                            trimWhitespace: true,
+                            validator: function (value, callback) {
+                                // Allow empty
+                                if (value === '' || value === null || value === undefined) {
+                                    callback(true);
+                                    return;
+                                }
+
+                                // Must be 0-99 integer
+                                const trimmed = String(value).trim();
+                                const num = Number(trimmed);
+
+                                if (!/^\d{1,2}$/.test(trimmed) || isNaN(num) || !Number.isInteger(num)) {
+                                    callback(false);
+                                    return;
+                                }
+
+                                callback(num >= 0 && num <= 99);
+                            },
+                            allowInvalid: false
+                        })
+                    ],
+                    cells(row, col) {
+                        const cellProperties = {};
+                        if (row === 0 || col === 0) {
+                            cellProperties.readOnly = true;
+                            cellProperties.className = 'htCenter htBold';
+                        } else {
+                            cellProperties.className = 'htCenter';
+                        }
+                        return cellProperties;
+                    },
+                    afterChange(changes, source) {
+                        if (!changes || source === 'loadData' || source === 'autoCalc') return;
+
+                        let needsSave = false;
+
+                        changes.forEach(([row, col, oldValue, newValue]) => {
+                            if (row !== 1 || col <= 0) return; // only school days row, skip first column
+
+                            const monthKey = `month${col}`;
+
+                            // ── Most important part ───────────────────────────────
+                            // Handle all possible "empty" cases the same way
+                            let finalValue;
+
+                            if (newValue === '' ||
+                                newValue === null ||
+                                newValue === undefined ||
+                                (typeof newValue === 'string' && newValue.trim() === '')) {
+                                finalValue = '';   // ← real empty string
+                            } else {
+                                const trimmed = String(newValue).trim();
+                                const num = Number(trimmed);
+                                finalValue = (isNaN(num) || !Number.isInteger(num)) ? '' : num;
+                            }
+                            // ───────────────────────────────────────────────────────
+
+                            if (globalSchoolDaysConfig[monthKey] !== finalValue) {
+                                globalSchoolDaysConfig[monthKey] = finalValue;
+                                needsSave = true;
+                            }
+                        });
+
+                        if (needsSave) {
+                            saveGlobalSchoolDaysConfig();
+                            applyGlobalSchoolDaysToAllStudents();
+                        }
+                    },
+                    afterValidate(isValid, value, row, col) {
+                        if (!isValid && value !== '' && value !== null) {
+                            showToast("Only whole numbers 0–99 allowed", "warning");
+                            return false;
+                        }
+                        return true;
                     }
                 });
 
-                saveGlobalSchoolDaysConfig();
-                applyGlobalSchoolDaysToAllStudents();
-            },
-            afterValidate(isValid, value, row, col) {
-                if (!isValid && value !== '' && value !== null) {
-                    showToast("Only whole numbers 0–99 allowed", "warning");
-                    return false;
-                }
-                return true;
-            }
-        });
-
-        return hot;
-    }
-
-    function applyGlobalSchoolDaysToAllStudents() {
-        let cardGen = getCardGen();
-        const displayed = getDisplayedMonths();
-
-        const instances = [
-            { instance: boysHotInstance, gender: 'boys' },
-            { instance: girlsHotInstance, gender: 'girls' }
-        ];
-
-        instances.forEach(({ instance, gender }) => {
-            if (!instance) return;
-            const students = cardGen.students?.[gender] || {};
-            const studentList = Object.values(students);
-            const updateChanges = [];
-
-            studentList.forEach((student, index) => {
-                if (!student.monthlyAttendance) {
-                    student.monthlyAttendance = {
-                        total: { schoolDays: "", absent: "", present: "" },
-                        schoolDays: {}, absent: {}, present: {}
-                    };
-                }
-                const ma = student.monthlyAttendance;
-
-                for (let i = 0; i < 12; i++) {
-                    const key = `month${i + 1}`;
-                    ma.schoolDays[key] = globalSchoolDaysConfig[key];
-                }
-
-                recalcAttendance(ma, displayed);
-
-                const tableRowIndex = 2 + index;
-                updateChanges.push([tableRowIndex, 1, ma.total.schoolDays]);
-                updateChanges.push([tableRowIndex, 2, ma.total.absent]);
-                updateChanges.push([tableRowIndex, 3, ma.total.present]);
-                for (let i = 0; i < 12; i++) {
-                    updateChanges.push([tableRowIndex, 16 + i, ma.present[`month${i + 1}`]]);
-                }
-            });
-
-            if (updateChanges.length > 0) {
-                instance.setDataAtCell(updateChanges, 'autoCalc');
-            }
-        });
-
-        saveCardGen(cardGen);
-    }
-
-    function recalcAttendance(ma, displayed) {
-        let totalSchool = 0;
-        let totalAbsent = 0;
-        let hasAnySchoolData = false;
-
-        for (let i = 0; i < 12; i++) {
-            const k = `month${i + 1}`;
-            const sdVal = ma.schoolDays[k];
-            const abVal = ma.absent[k];
-            let pr = "";
-
-            if (sdVal !== "" && sdVal !== null && sdVal !== undefined) {
-                const sd = Number(sdVal);
-                const ab = Number(abVal) || 0;
-                const calculated = sd - ab;
-                pr = calculated > 0 ? calculated : (calculated === 0 ? 0 : "");
-
-                if (displayed[i] !== "") {
-                    hasAnySchoolData = true;
-                    totalSchool += sd;
-                    totalAbsent += ab;
-                }
+                return hot;
             }
 
-            ma.present[k] = pr;
-        }
-
-        ma.total.schoolDays = hasAnySchoolData ? totalSchool : "";
-        ma.total.absent = hasAnySchoolData ? totalAbsent : "";
-        const totalCalculated = totalSchool - totalAbsent;
-        ma.total.present = hasAnySchoolData ? (totalCalculated > 0 ? totalCalculated : (totalCalculated === 0 ? 0 : "")) : "";
-    }
-
-    // ==============================================
-    //          MAIN STUDENT ATTENDANCE TABLES
-    // ==============================================
-    function createAttendanceTable(containerId, gender) {
-        const container = document.getElementById(containerId);
-        if (!container) return null;
-
-        let cardGen = getCardGen();
-        const studentsObj = cardGen.students?.[gender] || {};
-        const studentEntries = Object.entries(studentsObj).sort(([a], [b]) => a.localeCompare(b));
-
-        const getMonthKey = (index) => `month${index + 1}`;
-        const displayed = getDisplayedMonths();
-
-        const rows = studentEntries.map(([id, student]) => {
-            if (!student.monthlyAttendance || Array.isArray(student.monthlyAttendance.schoolDays)) {
-                const old = student.monthlyAttendance || { schoolDays: [], absent: [], present: [] };
-                student.monthlyAttendance = {
-                    total: { schoolDays: "", absent: "", present: "" },
-                    schoolDays: {}, absent: {}, present: {}
-                };
-                for (let i = 0; i < 12; i++) {
-                    const key = getMonthKey(i);
-                    student.monthlyAttendance.schoolDays[key] = old.schoolDays[i] ?? "";
-                    student.monthlyAttendance.absent[key] = old.absent[i] ?? "";
-                    student.monthlyAttendance.present[key] = old.present[i] ?? "";
-                }
-            }
-
-            const ma = student.monthlyAttendance;
-            recalcAttendance(ma, displayed);
-
-            const row = [
-                student.name || "",
-                ma.total.schoolDays,
-                ma.total.absent,
-                ma.total.present
-            ];
-
-            for (let i = 0; i < 12; i++) row.push(ma.absent[getMonthKey(i)]);
-            for (let i = 0; i < 12; i++) row.push(ma.present[getMonthKey(i)]);
-
-            return row;
-        });
-
-        while (rows.length < 50) {
-            rows.push(["", "", "", "", ...Array(24).fill("")]);
-        }
-
-        const activeCount = displayed.filter(m => m !== "").length;
-
-        const headerRow1 = [
-            "Names of Learners", "Total", "", "",
-            `No. of Days Absent (${activeCount})`, ...Array(11).fill(""),
-            `No. of Days Present (${activeCount})`, ...Array(11).fill("")
-        ];
-
-        const headerRow2 = [
-            "", "No. of School Days", "No. of Days Absent", "No. of Days Present",
-            ...displayed, ...displayed
-        ];
-
-        const data = [headerRow1, headerRow2, ...rows];
-
-        const hot = new Handsontable(container, {
-            data: data,
-            rowHeaders: true,
-            colHeaders: false,
-            stretchH: 'all',
-            manualRowResize: true,
-            manualColumnResize: true,
-            fixedRowsTop: 2,
-            licenseKey: 'non-commercial-and-evaluation',
-            allowInvalid: false,
-
-            columns: [
-                { type: 'text', readOnly: true },
-                { type: 'numeric', readOnly: true },
-                { type: 'numeric', readOnly: true },
-                { type: 'numeric', readOnly: true },
-                ...Array(12).fill({
-                    type: 'numeric',
-                    numericFormat: { pattern: '0' },
-                    validator: function (value, callback) {
-                        if (value === '' || value === null || value === undefined) return callback(true);
-                        const str = String(value).trim();
-                        if (/^\d{1,2}$/.test(str)) {
-                            const num = Number(str);
-                            callback(num >= 0 && num <= 99);
-                        } else {
-                            callback(false);
-                        }
-                    },
-                    allowInvalid: false
-                }),
-                ...Array(12).fill({ type: 'numeric', readOnly: true })
-            ],
-
-            mergeCells: [
-                { row: 0, col: 0, rowspan: 2, colspan: 1 },
-                { row: 0, col: 1, rowspan: 1, colspan: 3 },
-                { row: 0, col: 4, rowspan: 1, colspan: 12 },
-                { row: 0, col: 16, rowspan: 1, colspan: 12 }
-            ],
-
-            cells: function (row, col) {
-                const meta = {};
-                if (row < 2) {
-                    meta.readOnly = true;
-                    meta.className = 'htCenter htBold';
-                } else if (col === 0) {
-                    meta.readOnly = true;
-                    meta.className = 'htLeft htBold';
-                } else {
-                    meta.className = 'htCenter';
-                }
-                return meta;
-            },
-
-            afterValidation: function (isValid, value, row, col) {
-                if (!isValid && value !== '' && value !== null && value !== undefined) {
-                    showToast("Maximum of 2 digits only (0–99). Invalid entry rejected.", "warning");
-                    this.setDataAtCell(row, col, '', 'validationRevert');
-                }
-            },
-
-            afterChange: function (changes, source) {
-                if (!changes || source === 'autoCalc' || source === 'validationRevert') return;
-
-                const changedRows = new Set(changes.map(([row]) => row).filter(r => r >= 2));
-                if (changedRows.size === 0) return;
-
+            function applyGlobalSchoolDaysToAllStudents() {
                 let cardGen = getCardGen();
                 const displayed = getDisplayedMonths();
-                const updateChanges = [];
 
-                changedRows.forEach(rowIndex => {
-                    const name = this.getDataAtCell(rowIndex, 0);
-                    if (!name) return;
+                const instances = [
+                    { instance: boysHotInstance, gender: 'boys' },
+                    { instance: girlsHotInstance, gender: 'girls' }
+                ];
 
-                    const genderStudents = cardGen.students[gender];
-                    const studentEntry = Object.entries(genderStudents).find(([_, stu]) => stu.name === name);
-                    if (!studentEntry) return;
+                instances.forEach(({ instance, gender }) => {
+                    if (!instance) return;
+                    const students = cardGen.students?.[gender] || {};
+                    const studentList = Object.values(students);
+                    const updateChanges = [];
 
-                    const [studentId, student] = studentEntry;
-                    if (!student.monthlyAttendance) {
+                    studentList.forEach((student, index) => {
+                        if (!student.monthlyAttendance) {
+                            student.monthlyAttendance = {
+                                total: { schoolDays: "", absent: "", present: "" },
+                                schoolDays: {}, absent: {}, present: {}
+                            };
+                        }
+                        const ma = student.monthlyAttendance;
+
+                        for (let i = 0; i < 12; i++) {
+                            const key = `month${i + 1}`;
+                            ma.schoolDays[key] = globalSchoolDaysConfig[key];
+                        }
+
+                        recalcAttendance(ma, displayed);
+
+                        const tableRowIndex = 2 + index;
+                        updateChanges.push([tableRowIndex, 1, ma.total.schoolDays]);
+                        updateChanges.push([tableRowIndex, 2, ma.total.absent]);
+                        updateChanges.push([tableRowIndex, 3, ma.total.present]);
+                        for (let i = 0; i < 12; i++) {
+                            updateChanges.push([tableRowIndex, 16 + i, ma.present[`month${i + 1}`]]);
+                        }
+                    });
+
+                    if (updateChanges.length > 0) {
+                        instance.setDataAtCell(updateChanges, 'autoCalc');
+                    }
+                });
+
+                saveCardGen(cardGen);
+            }
+
+            function recalcAttendance(ma, displayed) {
+                let totalSchool = 0;
+                let totalAbsent = 0;
+                let hasAnySchoolData = false;
+
+                for (let i = 0; i < 12; i++) {
+                    const k = `month${i + 1}`;
+                    const sdVal = ma.schoolDays[k];
+                    const abVal = ma.absent[k];
+                    let pr = "";
+
+                    if (sdVal !== "" && sdVal !== null && sdVal !== undefined) {
+                        const sd = Number(sdVal);
+                        const ab = Number(abVal) || 0;
+                        const calculated = sd - ab;
+                        pr = calculated > 0 ? calculated : (calculated === 0 ? 0 : "");
+
+                        if (displayed[i] !== "") {
+                            hasAnySchoolData = true;
+                            totalSchool += sd;
+                            totalAbsent += ab;
+                        }
+                    }
+
+                    ma.present[k] = pr;
+                }
+
+                ma.total.schoolDays = hasAnySchoolData ? totalSchool : "";
+                ma.total.absent = hasAnySchoolData ? totalAbsent : "";
+                const totalCalculated = totalSchool - totalAbsent;
+                ma.total.present = hasAnySchoolData ? (totalCalculated > 0 ? totalCalculated : (totalCalculated === 0 ? 0 : "")) : "";
+            }
+
+            // ==============================================
+            //          MAIN STUDENT ATTENDANCE TABLES
+            // ==============================================
+            function createAttendanceTable(containerId, gender) {
+                const container = document.getElementById(containerId);
+                if (!container) return null;
+
+                let cardGen = getCardGen();
+                const studentsObj = cardGen.students?.[gender] || {};
+                const studentEntries = Object.entries(studentsObj).sort(([a], [b]) => a.localeCompare(b));
+
+                const getMonthKey = (index) => `month${index + 1}`;
+                const displayed = getDisplayedMonths();
+
+                const rows = studentEntries.map(([id, student]) => {
+                    if (!student.monthlyAttendance || Array.isArray(student.monthlyAttendance.schoolDays)) {
+                        const old = student.monthlyAttendance || { schoolDays: [], absent: [], present: [] };
                         student.monthlyAttendance = {
                             total: { schoolDays: "", absent: "", present: "" },
                             schoolDays: {}, absent: {}, present: {}
                         };
+                        for (let i = 0; i < 12; i++) {
+                            const key = getMonthKey(i);
+                            student.monthlyAttendance.schoolDays[key] = old.schoolDays[i] ?? "";
+                            student.monthlyAttendance.absent[key] = old.absent[i] ?? "";
+                            student.monthlyAttendance.present[key] = old.present[i] ?? "";
+                        }
                     }
 
                     const ma = student.monthlyAttendance;
-                    for (let i = 0; i < 12; i++) {
-                        const absentCol = 4 + i;
-                        const absentVal = this.getDataAtCell(rowIndex, absentCol);
-                        const key = `month${i + 1}`;
-                        ma.absent[key] = absentVal === null || absentVal === undefined || absentVal === "" ? "" : Number(absentVal);
-                    }
-
                     recalcAttendance(ma, displayed);
 
-                    updateChanges.push([rowIndex, 1, ma.total.schoolDays]);
-                    updateChanges.push([rowIndex, 2, ma.total.absent]);
-                    updateChanges.push([rowIndex, 3, ma.total.present]);
-                    for (let i = 0; i < 12; i++) {
-                        updateChanges.push([rowIndex, 16 + i, ma.present[`month${i + 1}`]]);
+                    const row = [
+                        student.name || "",
+                        ma.total.schoolDays,
+                        ma.total.absent,
+                        ma.total.present
+                    ];
+
+                    for (let i = 0; i < 12; i++) row.push(ma.absent[getMonthKey(i)]);
+                    for (let i = 0; i < 12; i++) row.push(ma.present[getMonthKey(i)]);
+
+                    return row;
+                });
+
+                while (rows.length < 50) {
+                    rows.push(["", "", "", "", ...Array(24).fill("")]);
+                }
+
+                const activeCount = displayed.filter(m => m !== "").length;
+
+                const headerRow1 = [
+                    "Names of Learners", "Total", "", "",
+                    `No. of Days Absent (${activeCount})`, ...Array(11).fill(""),
+                    `No. of Days Present (${activeCount})`, ...Array(11).fill("")
+                ];
+
+                const headerRow2 = [
+                    "", "No. of School Days", "No. of Days Absent", "No. of Days Present",
+                    ...displayed, ...displayed
+                ];
+
+                const data = [headerRow1, headerRow2, ...rows];
+
+                const hot = new Handsontable(container, {
+                    data: data,
+                    rowHeaders: true,
+                    colHeaders: false,
+                    stretchH: 'all',
+                    manualRowResize: true,
+                    manualColumnResize: true,
+                    fixedRowsTop: 2,
+                    licenseKey: 'non-commercial-and-evaluation',
+                    allowInvalid: false,
+
+                    columns: [
+                        { type: 'text', readOnly: true },
+                        { type: 'numeric', readOnly: true },
+                        { type: 'numeric', readOnly: true },
+                        { type: 'numeric', readOnly: true },
+                        ...Array(12).fill({
+                            type: 'numeric',
+                            numericFormat: { pattern: '0' },
+                            validator: function (value, callback) {
+                                if (value === '' || value === null || value === undefined) return callback(true);
+                                const str = String(value).trim();
+                                if (/^\d{1,2}$/.test(str)) {
+                                    const num = Number(str);
+                                    callback(num >= 0 && num <= 99);
+                                } else {
+                                    callback(false);
+                                }
+                            },
+                            allowInvalid: false
+                        }),
+                        ...Array(12).fill({ type: 'numeric', readOnly: true })
+                    ],
+
+                    mergeCells: [
+                        { row: 0, col: 0, rowspan: 2, colspan: 1 },
+                        { row: 0, col: 1, rowspan: 1, colspan: 3 },
+                        { row: 0, col: 4, rowspan: 1, colspan: 12 },
+                        { row: 0, col: 16, rowspan: 1, colspan: 12 }
+                    ],
+
+                    cells: function (row, col) {
+                        const meta = {};
+                        if (row < 2) {
+                            meta.readOnly = true;
+                            meta.className = 'htCenter htBold';
+                        } else if (col === 0) {
+                            meta.readOnly = true;
+                            meta.className = 'htLeft htBold';
+                        } else {
+                            meta.className = 'htCenter';
+                        }
+                        return meta;
+                    },
+
+                    afterValidation: function (isValid, value, row, col) {
+                        if (!isValid && value !== '' && value !== null && value !== undefined) {
+                            showToast("Maximum of 2 digits only (0–99). Invalid entry rejected.", "warning");
+                            this.setDataAtCell(row, col, '', 'validationRevert');
+                        }
+                    },
+
+                    afterChange: function (changes, source) {
+                        if (!changes || source === 'autoCalc' || source === 'validationRevert') return;
+
+                        const changedRows = new Set(changes.map(([row]) => row).filter(r => r >= 2));
+                        if (changedRows.size === 0) return;
+
+                        let cardGen = getCardGen();
+                        const displayed = getDisplayedMonths();
+                        const updateChanges = [];
+
+                        changedRows.forEach(rowIndex => {
+                            const name = this.getDataAtCell(rowIndex, 0);
+                            if (!name) return;
+
+                            const genderStudents = cardGen.students[gender];
+                            const studentEntry = Object.entries(genderStudents).find(([_, stu]) => stu.name === name);
+                            if (!studentEntry) return;
+
+                            const [studentId, student] = studentEntry;
+                            if (!student.monthlyAttendance) {
+                                student.monthlyAttendance = {
+                                    total: { schoolDays: "", absent: "", present: "" },
+                                    schoolDays: {}, absent: {}, present: {}
+                                };
+                            }
+
+                            const ma = student.monthlyAttendance;
+                            for (let i = 0; i < 12; i++) {
+                                const absentCol = 4 + i;
+                                const absentVal = this.getDataAtCell(rowIndex, absentCol);
+                                const key = `month${i + 1}`;
+                                ma.absent[key] = absentVal === null || absentVal === undefined || absentVal === "" ? "" : Number(absentVal);
+                            }
+
+                            recalcAttendance(ma, displayed);
+
+                            updateChanges.push([rowIndex, 1, ma.total.schoolDays]);
+                            updateChanges.push([rowIndex, 2, ma.total.absent]);
+                            updateChanges.push([rowIndex, 3, ma.total.present]);
+                            for (let i = 0; i < 12; i++) {
+                                updateChanges.push([rowIndex, 16 + i, ma.present[`month${i + 1}`]]);
+                            }
+                        });
+
+                        if (updateChanges.length > 0) {
+                            this.setDataAtCell(updateChanges, 'autoCalc');
+                        }
+
+                        saveCardGen(cardGen);
                     }
                 });
 
-                if (updateChanges.length > 0) {
-                    this.setDataAtCell(updateChanges, 'autoCalc');
-                }
+                return hot;
+            }
+
+            function autoInitializeAbsentDaysForSelectedMonths() {
+                const cardGen = getCardGen();
+                const displayed = getDisplayedMonths();           // e.g. ["Jun", "Jul", "", "", ...]
+
+                // Kumuha ng aktibong buwan indices (0-based)
+                const activeMonthIndices = displayed
+                    .map((m, i) => m ? i : -1)
+                    .filter(i => i !== -1);
+
+                ['boys', 'girls'].forEach(gender => {
+                    const students = cardGen.students?.[gender] || {};
+
+                    Object.values(students).forEach(student => {
+                        if (!student.monthlyAttendance) {
+                            student.monthlyAttendance = {
+                                total: { schoolDays: "", absent: "", present: "" },
+                                schoolDays: {}, absent: {}, present: {}
+                            };
+                        }
+
+                        const ma = student.monthlyAttendance;
+
+                        for (let i = 0; i < 12; i++) {
+                            const key = `month${i + 1}`;
+
+                            if (activeMonthIndices.length === 0) {
+                                // ← Important fix: kapag walang selected month → clear lahat!
+                                ma.absent[key] = "";
+                            }
+                            else if (activeMonthIndices.includes(i)) {
+                                // Active month → default to 0 kung wala pang value
+                                if (ma.absent[key] === "" || ma.absent[key] == null) {
+                                    ma.absent[key] = 0;
+                                }
+                                // Kung may existing value na (teacher input), huwag baguhin
+                            } else {
+                                // Hindi kasama sa range → clear
+                                ma.absent[key] = "";
+                            }
+                        }
+
+                        recalcAttendance(ma, displayed);
+                    });
+                });
 
                 saveCardGen(cardGen);
-            }
-        });
 
-        return hot;
-    }
 
-    // ==============================================
-    //               TABLE REFRESH LOGIC
-    // ==============================================
-    function refreshAllTables() {
-        // Destroy existing instances
-        if (schoolDaysHotInstance) {
-            schoolDaysHotInstance.destroy();
-            schoolDaysHotInstance = null;
-        }
-        if (boysHotInstance) {
-            boysHotInstance.destroy();
-            boysHotInstance = null;
-        }
-        if (girlsHotInstance) {
-            girlsHotInstance.destroy();
-            girlsHotInstance = null;
-        }
-
-        // Create new ones
-        schoolDaysHotInstance = createSchoolDaysConfigTable();
-        boysHotInstance = createAttendanceTable('boysHot', 'boys');
-        girlsHotInstance = createAttendanceTable('girlsHot', 'girls');
-
-        // Apply global config to students
-        applyGlobalSchoolDaysToAllStudents();
-    }
-
-    // Initial load
-    refreshAllTables();
-
-    // ==============================================
-    //               EXCEL IMPORT / EXPORT
-    // ==============================================
-    function exportToExcel() {
-        if (typeof XLSX === 'undefined') {
-            showToast("Excel library failed to load. Check internet or refresh page.", "error");
-            return;
-        }
-
-        const wb = XLSX.utils.book_new();
-        const displayed = getDisplayedMonths();
-        const activeMonths = displayed.filter(m => m !== "");
-        const schoolDays = activeMonths.map((_, idx) => globalSchoolDaysConfig[`month${idx + 1}`] || "");
-
-        const configAoa = [
-            ["Start Month", startSelect.value || "None"],
-            ["End Month", endSelect.value || "None"],
-            [],
-            ["Month", "School Days"],
-            ...activeMonths.map((m, idx) => [m, schoolDays[idx] || ""])
-        ];
-
-        const configWs = XLSX.utils.aoa_to_sheet(configAoa);
-        XLSX.utils.book_append_sheet(wb, configWs, "Config");
-
-        // Boys
-        const boysHeaders = ["Student ID", "Name", ...activeMonths.map(m => `Absent - ${m}`)];
-        const boysData = [boysHeaders];
-        const boysStudents = getCardGen().students?.boys || {};
-        Object.entries(boysStudents).sort(([a], [b]) => a.localeCompare(b)).forEach(([id, stu]) => {
-            const absents = activeMonths.map((_, idx) => {
-                const val = stu.monthlyAttendance?.absent?.[`month${idx + 1}`];
-                return val === "" ? "" : val;
-            });
-            boysData.push([id, stu.name || "", ...absents]);
-        });
-        const boysWs = XLSX.utils.aoa_to_sheet(boysData);
-        XLSX.utils.book_append_sheet(wb, boysWs, "Boys");
-
-        // Girls
-        const girlsHeaders = ["Student ID", "Name", ...activeMonths.map(m => `Absent - ${m}`)];
-        const girlsData = [girlsHeaders];
-        const girlsStudents = getCardGen().students?.girls || {};
-        Object.entries(girlsStudents).sort(([a], [b]) => a.localeCompare(b)).forEach(([id, stu]) => {
-            const absents = activeMonths.map((_, idx) => {
-                const val = stu.monthlyAttendance?.absent?.[`month${idx + 1}`];
-                return val === "" ? "" : val;
-            });
-            girlsData.push([id, stu.name || "", ...absents]);
-        });
-        const girlsWs = XLSX.utils.aoa_to_sheet(girlsData);
-        XLSX.utils.book_append_sheet(wb, girlsWs, "Girls");
-
-        const dateStr = new Date().toISOString().slice(0,10);
-        XLSX.writeFile(wb, `Attendance_${dateStr}.xlsx`);
-    }
-
-    document.getElementById('exportBtn').addEventListener('click', exportToExcel);
-
-    document.getElementById('importBtn').addEventListener('click', () => {
-        document.getElementById('importFile').click();
-    });
-
-    document.getElementById('importFile').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        if (typeof XLSX === 'undefined') {
-            showToast("Excel library not loaded. Cannot import.", "error");
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const data = ev.target.result;
-            const wb = XLSX.read(data, { type: 'binary' });
-
-            let cardGen = getCardGen();
-
-            if (!wb.SheetNames.includes("Config")) {
-                showToast("Config sheet missing in the file.", "error");
-                return;
             }
 
-            const configAoa = XLSX.utils.sheet_to_json(wb.Sheets["Config"], { header: 1, blankrows: false });
-            let importStartMonth = '';
-            let importEndMonth = '';
-            let monthDays = [];
-            let inTable = false;
 
-            configAoa.forEach(row => {
-                if (row[0] === 'Start Month') importStartMonth = row[1] || '';
-                else if (row[0] === 'End Month') importEndMonth = row[1] || '';
-                else if (row[0] === 'Month' && row[1] === 'School Days') inTable = true;
-                else if (inTable && row[0]) {
-                    monthDays.push({ month: row[0], days: row[1] ? Number(row[1]) : '' });
+
+            // ==============================================
+            //               TABLE REFRESH LOGIC
+            // ==============================================
+            function refreshAllTables() {
+                // Destroy existing instances
+                if (schoolDaysHotInstance) {
+                    schoolDaysHotInstance.destroy();
+                    schoolDaysHotInstance = null;
                 }
-            });
-
-            const importedMonths = monthDays.map(md => md.month);
-            cardGen.attendanceMonth = importedMonths.join(', ');
-            saveCardGen(cardGen);
-
-            startSelect.value = importStartMonth || importedMonths[0] || '';
-            endSelect.value = importEndMonth || (importedMonths.length > 0 ? importedMonths[importedMonths.length - 1] : '');
-            toggleEndMonth();
-            updateEndOptions();
-            saveAttendanceMonths();
-
-            monthDays.forEach((md, i) => {
-                globalSchoolDaysConfig[`month${i + 1}`] = md.days;
-            });
-            for (let i = importedMonths.length; i < 12; i++) {
-                globalSchoolDaysConfig[`month${i + 1}`] = '';
-            }
-            saveGlobalSchoolDaysConfig();
-
-            if (schoolDaysHotInstance) {
-                schoolDaysHotInstance.setDataAtCell(1, 0, 'School Days'); // reset label
-                for (let i = 1; i <= 12; i++) {
-                    schoolDaysHotInstance.setDataAtCell(1, i, globalSchoolDaysConfig[`month${i}`] || '');
+                if (boysHotInstance) {
+                    boysHotInstance.destroy();
+                    boysHotInstance = null;
                 }
-            }
-
-            const importedDisplayed = getDisplayedMonths();
-            const importedActiveMonths = importedDisplayed.filter(m => m !== "");
-
-            // Import Boys
-            if (wb.SheetNames.includes("Boys")) {
-                const boysAoa = XLSX.utils.sheet_to_json(wb.Sheets["Boys"], { header: 1 });
-                if (boysAoa.length === 0) { showToast("Boys sheet is empty.", "warning"); }
-                else {
-                    const headers = boysAoa[0];
-                    const expectedHeaders = importedActiveMonths.map(m => `Absent - ${m}`);
-                    if (headers.slice(2).join(',') !== expectedHeaders.join(',')) {
-                        showToast("Boys sheet columns do not match selected months.", "error");
-                        return;
-                    }
-
-                    const rows = boysAoa.slice(1);
-                    const students = cardGen.students.boys = cardGen.students.boys || {};
-                    rows.forEach(row => {
-                        if (!row[0]) return;
-                        const id = String(row[0]);
-                        students[id] = students[id] || {};
-                        students[id].name = row[1] || "";
-                        if (!students[id].monthlyAttendance) {
-                            students[id].monthlyAttendance = {
-                                total: { schoolDays: "", absent: "", present: "" },
-                                schoolDays: {}, absent: {}, present: {}
-                            };
-                        }
-                        const ma = students[id].monthlyAttendance;
-                        row.slice(2).forEach((val, i) => {
-                            ma.absent[`month${i + 1}`] = val === "" ? "" : Number(val);
-                        });
-                        for (let j = row.slice(2).length; j < 12; j++) {
-                            ma.absent[`month${j + 1}`] = "";
-                        }
-                        recalcAttendance(ma, importedDisplayed);
-                    });
+                if (girlsHotInstance) {
+                    girlsHotInstance.destroy();
+                    girlsHotInstance = null;
                 }
+
+                // Create new ones
+                schoolDaysHotInstance = createSchoolDaysConfigTable();
+                boysHotInstance = createAttendanceTable('boysHot', 'boys');
+                girlsHotInstance = createAttendanceTable('girlsHot', 'girls');
+
+                // Apply global config to students
+                applyGlobalSchoolDaysToAllStudents();
             }
 
-            // Import Girls
-            if (wb.SheetNames.includes("Girls")) {
-                const girlsAoa = XLSX.utils.sheet_to_json(wb.Sheets["Girls"], { header: 1 });
-                if (girlsAoa.length === 0) { showToast("Girls sheet is empty.", "warning"); }
-                else {
-                    const headers = girlsAoa[0];
-                    const expectedHeaders = importedActiveMonths.map(m => `Absent - ${m}`);
-                    if (headers.slice(2).join(',') !== expectedHeaders.join(',')) {
-                        showToast("Girls sheet columns do not match selected months.", "error");
-                        return;
-                    }
-
-                    const rows = girlsAoa.slice(1);
-                    const students = cardGen.students.girls = cardGen.students.girls || {};
-                    rows.forEach(row => {
-                        if (!row[0]) return;
-                        const id = String(row[0]);
-                        students[id] = students[id] || {};
-                        students[id].name = row[1] || "";
-                        if (!students[id].monthlyAttendance) {
-                            students[id].monthlyAttendance = {
-                                total: { schoolDays: "", absent: "", present: "" },
-                                schoolDays: {}, absent: {}, present: {}
-                            };
-                        }
-                        const ma = students[id].monthlyAttendance;
-                        row.slice(2).forEach((val, i) => {
-                            ma.absent[`month${i + 1}`] = val === "" ? "" : Number(val);
-                        });
-                        for (let j = row.slice(2).length; j < 12; j++) {
-                            ma.absent[`month${j + 1}`] = "";
-                        }
-                        recalcAttendance(ma, importedDisplayed);
-                    });
-                }
-            }
-
-            saveCardGen(cardGen);
-
-            // Rebuild all tables after import
+            // Initial load
             refreshAllTables();
+            autoInitializeAbsentDaysForSelectedMonths();
 
-            showToast("Import completed successfully!", "success");
-            e.target.value = '';
-        };
-        reader.readAsBinaryString(file);
+            // ==============================================
+            //         CLEAR ALL ATTENDANCE DATA FUNCTION
+            // ==============================================
+
+            // Reusable confirmation (same style as Grades page)
+            function askConfirm(title, message, onConfirm) {
+                document.getElementById('confirmModalTitle').textContent = title;
+                document.getElementById('confirmModalBody').textContent = message;
+
+                const confirmBtn = document.getElementById('confirmModalConfirmBtn');
+                const newConfirmBtn = confirmBtn.cloneNode(true); // prevent multiple listeners
+                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+                newConfirmBtn.addEventListener('click', function () {
+                    if (onConfirm) onConfirm();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+                    if (modal) modal.hide();
+                }, { once: true });
+
+                const modal = new bootstrap.Modal(document.getElementById('confirmModal'), {
+                    keyboard: true,
+                    backdrop: 'static'
+                });
+                modal.show();
+
+                // Auto-focus confirm button
+                modal._element.addEventListener('shown.bs.modal', () => newConfirmBtn.focus(), { once: true });
+            }
+
+            // Show confirmation dialog
+            window.showClearAttendanceConfirmation = function () {
+                askConfirm(
+                    "Clear All Attendance Data",
+                    "This will delete ALL absent/present records and totals for ALL months.\nStudent names and selected months will be kept.\n\nThis action cannot be undone.",
+                    confirmClearAllAttendance
+                );
+            };
+
+            // The actual clearing function — very fast, no reload
+            window.confirmClearAllAttendance = function () {
+    let data = getCardGen();
+
+    // 1. Clear lahat ng attendance data ng students
+    ['boys', 'girls'].forEach(gender => {
+        Object.values(data.students?.[gender] || {}).forEach(student => {
+            if (student.monthlyAttendance) {
+                student.monthlyAttendance = {
+                    total: { schoolDays: "", absent: "", present: "" },
+                    schoolDays: {}, 
+                    absent: {}, 
+                    present: {}
+                };
+            }
+        });
     });
+
+    // 2. Clear ang global School Days Configuration
+    data.schoolDaysConfig = {
+        month1: "", month2: "", month3: "", month4: "",
+        month5: "", month6: "", month7: "", month8: "",
+        month9: "", month10: "", month11: "", month12: ""
+    };
+    globalSchoolDaysConfig = { ...data.schoolDaysConfig }; // sync global variable
+
+    // 3. Clear ang selected First & Last Month
+    data.attendanceMonth = "";  // ← Ito ang bagong idinagdag
+
+    saveCardGen(data);
+
+    // ── Instant visual update sa lahat ng tables ───────────────────────────────
+
+    // A. Update School Days Config Table (blank ulit)
+    if (schoolDaysHotInstance) {
+        const displayed = getDisplayedMonths(); // ngayon blank na 'to
+        const headerRow = ['Months:', ...displayed];
+        const dataRow = ['School Days:', ...Array(12).fill('')];
+        
+        schoolDaysHotInstance.loadData([headerRow, dataRow]);
+        schoolDaysHotInstance.render();
+    }
+
+    // B. Update Boys & Girls Attendance Tables
+    [boysHotInstance, girlsHotInstance].forEach(hot => {
+        if (!hot) return;
+
+        const currentData = hot.getData();
+
+        for (let row = 2; row < currentData.length; row++) {
+            // Clear total columns (1,2,3)
+            currentData[row][1] = "";
+            currentData[row][2] = "";
+            currentData[row][3] = "";
+
+            // Clear absent columns (4 to 15)
+            for (let col = 4; col < 16; col++) {
+                currentData[row][col] = "";
+            }
+
+            // Clear present columns (16 to 27)
+            for (let col = 16; col < 28; col++) {
+                currentData[row][col] = "";
+            }
+        }
+
+        hot.loadData(currentData);
+        hot.render();
+    });
+
+    // C. Optional: Update ang month dropdowns para mag-reflect na blank na rin
+    document.getElementById('startMonth').value = "";
+    document.getElementById('endMonth').value = "";
+    document.getElementById('endMonth').disabled = true;
+
+    showToast("Clear data successful!", "success");
+};
 });
     </script>
 </body>
