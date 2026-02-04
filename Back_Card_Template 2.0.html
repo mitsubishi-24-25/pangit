@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Back Card Template 2.0</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Times New Roman', serif;
+        }
+
+        #printableCard {
+            position: relative;
+            width: 215.9mm;
+            height: 279.4mm;
+        }
+
+        #front-card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .overlay-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .grades-table {
+            table-layout: fixed;
+            width: 100%;
+            font-size: 13pt;
+            line-height: 1;
+            /* 
+            border: 1px solid black;
+            border-collapse: collapse; */
+        }
+
+        .grades-table thead th {
+            font-size: 13pt;
+            padding: 8px 0px;
+            line-height: 1;
+        }
+
+        .grades-table th,
+        .grades-table td {
+            padding: 2px 4px;
+            vertical-align: top;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            text-align: left;
+            border: 1px solid black;
+        }
+
+        .grades-table th {
+            font-weight: bold;
+        }
+
+        .subject-col {
+            width: 50%;
+        }
+
+        .grade-col {
+            width: 10%;
+            text-align: center !important;
+        }
+
+        .final-col {
+            width: 20%;
+            text-align: center !important;
+        }
+
+        tbody, td, tfoot, th, thead, tr {
+            vertical-align: middle !important;
+        }
+
+        /* Center all grade values (Q1, Q2, Final, etc.) */
+        .grades-table td:nth-child(2),
+        .grades-table td:nth-child(3),
+        .grades-table td:nth-child(4),
+        .grades-table th:nth-child(2),
+        .grades-table th:nth-child(3),
+        .grades-table th:nth-child(4) {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        /* ── General Average row styling ── */
+        tr.gen-ave-row td {
+            border: none !important;
+            padding: 4px 4px 2px;
+        }
+
+        tr.gen-ave-row .ave-label {
+            text-align: right !important;
+            font-weight: bold;
+            padding-right: 12px !important;
+        }
+
+        .fake-underline {
+            text-decoration: none;
+            border-bottom: 1.5px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="printableCard">
+        <img src="Back Card 2.0.png" alt="Card Background" id="front-card" style="border: 1px gray dashed;">
+
+        <div class="overlay-container">
+
+            <!-- Semester 1 -->
+            <div id="sem1-block">
+                <table class="grades-table">
+                    <colgroup>
+                        <col class="subject-col">
+                        <col class="grade-col">
+                        <col class="grade-col">
+                        <col class="final-col">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="text-align: center; vertical-align: middle; background: #d6d6d6;">
+                                Subjects</th>
+                            <th colspan="2" style="text-align: center; vertical-align: middle; background: #d6d6d6;">
+                                Quarter</th>
+                            <th rowspan="2" style="text-align: center; vertical-align: middle; background: #d6d6d6;">
+                                Semester Final Grade
+                            </th>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center; background: #d6d6d6;">1</th>
+                            <th style="text-align: center; background: #d6d6d6;">2</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="font-weight: bold; padding-top: 4px; background: #d6d6d6;">Core
+                                Subjects</td>
+                        </tr>
+                    </tbody>
+                    <tbody id="core1-body"></tbody>
+                </table>
+
+                <table class="grades-table" style="margin-top: -1px;">
+                    <colgroup>
+                        <col class="subject-col">
+                        <col class="grade-col">
+                        <col class="grade-col">
+                        <col class="final-col">
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="font-weight: bold; padding-top: 4px; background: #d6d6d6;">Applied
+                                and Specialized
+                                Subjects</td>
+                        </tr>
+                    </tbody>
+                    <tbody id="applied1-body"></tbody>
+                    <tbody>
+                        <tr class="gen-ave-row">
+                            <td colspan="3" class="ave-label">General Average for the Semester</td>
+                            <td id="GenAve1" style="border: 1px solid black !important;"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Semester 2 -->
+            <div id="sem2-block">
+                <table class="grades-table">
+                    <colgroup>
+                        <col class="subject-col">
+                        <col class="grade-col">
+                        <col class="grade-col">
+                        <col class="final-col">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="text-align: center; background: #d6d6d6; vertical-align: middle;">
+                                Subjects</th>
+                            <th colspan="2" style="text-align: center; background: #d6d6d6;">Quarter</th>
+                            <th rowspan="2" style="text-align: center; background: #d6d6d6; vertical-align: middle;">
+                                Semester Final Grade</th>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center; background: #d6d6d6;">3</th>
+                            <th style="text-align: center; background: #d6d6d6;">4</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="font-weight: bold; padding-top: 4px; background: #d6d6d6;">Core
+                                Subjects</td>
+                        </tr>
+                    </tbody>
+                    <tbody id="core2-body"></tbody>
+                </table>
+
+                <table class="grades-table" style="margin-top: -1px;">
+                    <colgroup>
+                        <col class="subject-col">
+                        <col class="grade-col">
+                        <col class="grade-col">
+                        <col class="final-col">
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="font-weight: bold; padding-top: 4px; background: #d6d6d6;">Applied
+                                and Specialized
+                                Subjects</td>
+                        </tr>
+                    </tbody>
+                    <tbody id="applied2-body"></tbody>
+                    <tbody>
+                        <tr class="gen-ave-row">
+                            <td colspan="3" class="ave-label">General Average for the Semester</td>
+                            <td id="GenAve2" style="border: 1px solid black !important"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p id="studentName" class="fake-underline"></p>
+                <p id="studentSection" class="fake-underline"></p>
+                <p id="studentSchoolYear"></p>
+                <div id="teacherNameWrapper" class="name-wrapper">
+                    <p id="teacherName" class="name-text fake-underline"></p>
+                </div>
+
+                <div class="teacherSignatureWrapper">
+                    <img class="teacherSignatureImg">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>

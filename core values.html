@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Values</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="root.css">
+    <link rel="stylesheet" href="Toast.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@14.4.0/dist/handsontable.full.min.css">
+    <style>
+        body {
+            background: var(--background-color);
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            padding: 20px;
+        }
+
+        .navbar {
+            z-index: 1060 !important;
+            font-family: 'Oswald', sans-serif;
+            background: var(--primary-color) !important;
+        }
+
+        .main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s;
+            padding-top: 0;
+        }
+
+        @media (min-width: 992px) {
+            .main-content {
+                margin-left: 250px;
+                padding-right: 2rem;
+            }
+
+            #toggleBtn {
+                display: none;
+            }
+
+            .sidebar {
+                transform: translateX(0) !important;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .sidebar {
+                position: absolute;
+                height: 100vh;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hot-container {
+                height: 250px;
+            }
+        }
+
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: var(--secondary-color);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 1050;
+            font-family: 'Poppins', sans-serif;
+            padding-top: 60px;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar .nav-link {
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+            color: var(--primary-color);
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            transform: translateX(5px);
+        }
+
+        .sidebar .nav-link.active {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            font-weight: bold;
+            transform: translateX(5px);
+            pointer-events: none;
+        }
+
+        .sidebar .nav-item p {
+            font-family: Poppins;
+            font-weight: bold;
+            color: var(--primarydark-color);
+        }
+
+        #toggleBtn {
+            color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        #toggleBtn:hover {
+            background-color: var(--secondary-color) !important;
+            color: var(--primary-color) !important;
+            border-color: var(--secondary-color) !important;
+        }
+
+        .button-row {
+            margin-bottom: 20px;
+        }
+
+        .btn-group-left {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-right {
+            margin-left: auto;
+        }
+
+        .hot-container {
+            height: 330px;
+            border: 1px solid var(--primarydark-color);
+            margin-bottom: 20px;
+            overflow: auto;
+        }
+
+        .student-table {
+            height: 300px;
+        }
+
+        .space {
+            height: 20px;
+        }
+
+        .btn .btn-secondary {
+            background-color: var(--danger) !important;
+        }
+
+        .handsontable thead th .relative {
+            background-color: var(--accent-color);
+            border: 1px solid var(--primarydark-color);
+        }
+
+        .handsontable table {
+            border-collapse: collapse;
+            border: 1px solid var(--primarydark-color);
+        }
+
+        .ht_master tb {
+            background-color: var(--accent-color);
+            border: 1px solid var(--primarydark-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color) !important;
+            border-color: var(--primarydark-color);
+        }
+
+        .modal {
+            z-index: 9999;
+        }
+
+        #confirmModal .btn-danger:focus {
+            box-shadow: 0 0 0 0.25rem rgba(134, 0, 13, 0.795);
+        }
+
+        .bg-pink {
+            background-color: pink !important;
+        }
+
+        .temp-highlight {
+            background-color: lightblue !important;
+        }
+
+        #searchSuggestions {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .suggestion-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid #dee2e6;
+            color: var(--dark-mode-color);
+        }
+
+        .suggestion-item .badge {
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 576px) {
+            .navbar-brand-container {
+                width: 100%;
+                text-align: center;
+            }
+
+            .search-container {
+                width: 100%;
+                margin-top: 5px;
+            }
+
+            #searchBar {
+                width: 100% !important;
+            }
+        }
+
+        @media (min-width: 577px) {
+            .search-container {
+                flex-grow: 1;
+                max-width: 400px;
+            }
+
+            #searchBar {
+                width: 100%;
+            }
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.selected {
+            background-color: #e9ecef !important;
+        }
+
+        .text-muted {
+            color: var() !important;
+        }
+
+        @media (max-width: 768px) {
+            .button-row {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            .button-row .btn-group-left,
+            .button-row .btn-danger {
+                width: 100%;
+            }
+
+            .button-row .btn-group-left .btn {
+                flex: 1;
+            }
+
+            .button-row>.ms-auto {
+                display: none;
+            }
+        }
+
+        #searchBar {
+            background-color: var(--secondary-color);
+            border: 1px solid var(--dark-mode-color);
+            color: var(--dark-mode-color);
+            padding-right: 40px;
+        }
+
+        #searchBar::placeholder {
+            color: black;
+        }
+
+        #clearSearch {
+            font-size: 2em;
+            /* Mas malaki na yung × */
+            font-weight: bold;
+            /* Mas bold para mas kita */
+            line-height: 1;
+            padding: 0 8px;
+            /* Kaunting space sa gilid para madaling i-click */
+        }
+
+        @media (max-width: 768px) {
+            .button-row {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            .button-row .btn-group-left,
+            .button-row,
+            .btn-danger {
+                width: 100%;
+            }
+
+            .button-row .btn-group-left .btn {
+                flex: 1;
+            }
+
+            .button-row>.ms-auto {
+                display: none;
+                /* Hide spacer on mobile */
+            }
+        }
+
+        .htRowHighlighted {
+            background-color: var(--lowPrimary) !important;
+            border-bottom: var(--primarydark-color) 1px dashed !important;
+            border-top: var(--primarydark-color) 1px dashed !important;
+            font-weight: bold !important;
+            color: black;
+            vertical-align: middle !important;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-light bg-primary shadow-sm fixed-top" data-bs-theme="dark">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center w-100 justify-content-between flex-wrap">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-secondary me-2 d-lg-none" id="toggleBtn">☰</button>
+                    <span class="navbar-brand mb-0 h1 navbar-brand-container d-none d-lg-inline" id="Hi">CardGen: From
+                        Grade Consolidation to Printable Report Card for Senior High School</span>
+                    <span class="navbar-brand mb-0 h1 navbar-brand-container d-inline d-lg-none" id="Hi"
+                        onclick="dboard()">CardGen 2025</span>
+                </div>
+                <div class="search-container position-relative ms-lg-auto">
+                    <input type="text" id="searchBar" class="form-control" placeholder="Search Name" autocomplete="off"
+                        autocorrect="off" autocapitalize="off">
+                    <span id="clearSearch" class="position-absolute"
+                        style="right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; display: none; color: black;">×</span>
+                    <div id="searchSuggestions" class="position-absolute bg-white border border-black shadow"
+                        style="display: none; width: 100%; max-height: 250px; overflow-y: auto; z-index: 1051; top: 100%; left: 0;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar collapsed" id="sidebar">
+        <ul class="nav flex-column px-3">
+            <div id="sidebar-container"></div>
+        </ul>
+    </div>
+    <div class="main-content">
+        <div class="container-fluid container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex button-row flex-wrap gap-3 align-items-center mb-3">
+                        <!-- You can add other buttons here later if needed -->
+                    </div>
+
+                    <!-- Males Section -->
+                    <div
+                        class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center mb-3 gap-3">
+                        <!-- Button muna sa mobile, text muna sa desktop -->
+                        <button class="btn btn-danger order-1 order-md-3" onclick="showClearConfirmation()">
+                            Clear Data (Male/Female)
+                        </button>
+
+                        <h5 class="mb-0 mb-md-0 order-3 order-md-1">
+                            Males Core Values
+                        </h5>
+
+                        <div class="form-check form-switch align-self-center order-2 order-md-2">
+                            <input class="form-check-input" type="checkbox" id="rowTrackerToggle" checked>
+                            <label class="form-check-label" for="rowTrackerToggle">
+                                Row Tracker (highlight on click)
+                            </label>
+                        </div>
+                    </div>
+                    <div id="boysHot" class="hot-container student-table"></div>
+
+                    <div class="space" style="height: 30px;"></div>
+
+                    <!-- Females Section -->
+                    <div class="section-header mb-2 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <h5 class="mb-0">Females Core Values</h5>
+                        <!-- You may add another clear button here later if you want separate clearing -->
+                        <!-- <button class="btn btn-danger" onclick="showClearConfirmation()">Clear Females</button> -->
+                    </div>
+                    <div id="girlsHot" class="hot-container student-table"></div>
+
+                    <!-- Confirmation Modal -->
+                    <div class="modal fade" style="z-index: 9999;" id="confirmModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="confirmModalTitle">Confirm Action</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" id="confirmModalBody">
+                                    Are you sure you want to proceed?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-danger" id="confirmModalConfirmBtn"
+                                        autofocus>Confirm</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="loader.js"></script>
+    <script>
+        loadSidebar("core values.html");
+    </script>
+    <script>
+        // ==================== GLOBAL UTILITIES ====================
+        const STORAGE_KEY = "CardGen";
+
+        function getCardGen() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        }
+
+        function saveGen(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function getSortedStudents(studentsObj) {
+            return Object.values(studentsObj || {})
+                .filter(s => s.name && s.name.trim() !== "")
+                .sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        // ==================== CORE VALUES RELOAD FUNCTION (updated for 28 columns) ====================
+        function reloadCoreValuesTables() {
+            const data = getCardGen();
+            const quarters = ['q1', 'q2', 'q3', 'q4'];
+            const fields = ['maka-diyos1', 'maka-diyos2', 'makatao1', 'makatao2', 'makakalikasan', 'makabansa1', 'makabansa2'];
+
+            ['boys', 'girls'].forEach(gender => {
+                const sorted = getSortedStudents(data.students?.[gender]);
+                const dataRows = sorted.map(s => {
+                    const row = [s.name || ''];
+                    quarters.forEach(q => {
+                        const qData = s.coreValues?.[q] || {};
+                        fields.forEach(f => row.push(qData[f] || ''));
+                    });
+                    return row;
+                });
+
+                while (dataRows.length < 50) {
+                    dataRows.push(Array(29).fill('')); // name + 28 values
+                }
+
+                const hot = document.getElementById(gender + 'Hot')?.__hotInstance;
+                if (hot) {
+                    const fullData = hot.getData();
+                    fullData.splice(3);           // keep the 3 header rows
+                    fullData.push(...dataRows);   // add updated student rows
+                    hot.loadData(fullData);
+                    hot.validateCells(() => hot.render());
+                }
+            });
+        }
+
+        // ==================== SEARCH BAR ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchBar = document.getElementById('searchBar');
+            const clearSearch = document.getElementById('clearSearch');
+            const searchSuggestions = document.getElementById('searchSuggestions');
+            let searchTimer;
+            let currentHighlightedCell = null;
+            let selectedSuggestionIndex = -1;
+            let suggestionItems = [];
+
+            function removeHighlight() {
+                if (currentHighlightedCell) {
+                    currentHighlightedCell.classList.remove('temp-highlight');
+                    currentHighlightedCell = null;
+                }
+            }
+
+            function clearSelection() {
+                suggestionItems.forEach(item => item.classList.remove('selected'));
+                selectedSuggestionIndex = -1;
+            }
+
+            searchBar.addEventListener('input', (e) => {
+                const query = e.target.value.trim().toLowerCase();
+                if (!query) {
+                    clearSearch.style.display = 'none';
+                    searchSuggestions.style.display = 'none';
+                    removeHighlight();
+                    clearSelection();
+                    return;
+                }
+                clearSearch.style.display = 'block';
+                searchSuggestions.style.display = 'block';
+                searchSuggestions.innerHTML = '<div class="p-2 text-center"><div class="spinner-border spinner-border-sm text-dark" role="status"></div> Searching...</div>';
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => performSearch(query), 300);
+            });
+
+            searchBar.addEventListener('focus', () => {
+                const query = searchBar.value.trim().toLowerCase();
+                if (query) {
+                    performSearch(query);
+                    searchSuggestions.style.display = 'block';
+                }
+            });
+
+            searchBar.addEventListener('keydown', (e) => {
+                if (searchSuggestions.style.display === 'none' || suggestionItems.length === 0) return;
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedSuggestionIndex = (selectedSuggestionIndex + 1) % suggestionItems.length;
+                    updateSelection();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedSuggestionIndex = (selectedSuggestionIndex - 1 + suggestionItems.length) % suggestionItems.length;
+                    updateSelection();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedSuggestionIndex >= 0 && suggestionItems[selectedSuggestionIndex]) {
+                        suggestionItems[selectedSuggestionIndex].click();
+                        searchBar.blur();
+                    }
+                } else if (e.key === 'Escape') {
+                    searchSuggestions.style.display = 'none';
+                    clearSelection();
+                }
+            });
+
+            function updateSelection() {
+                suggestionItems.forEach((item, index) => {
+                    item.classList.toggle('selected', index === selectedSuggestionIndex);
+                    if (index === selectedSuggestionIndex) {
+                        item.scrollIntoView({ block: 'nearest' });
+                    }
+                });
+            }
+
+            clearSearch.addEventListener('click', () => {
+                searchBar.value = '';
+                clearSearch.style.display = 'none';
+                searchSuggestions.style.display = 'none';
+                removeHighlight();
+                clearSelection();
+                searchBar.blur();
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!searchBar.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                    searchSuggestions.style.display = 'none';
+                    clearSelection();
+                }
+            });
+
+            function performSearch(query) {
+                const boysHot = document.getElementById('boysHot')?.__hotInstance;
+                const girlsHot = document.getElementById('girlsHot')?.__hotInstance;
+                if (!boysHot || !girlsHot) return;
+
+                const matches = [];
+                [{ hot: boysHot, gender: 'M', table: 'boys' }, { hot: girlsHot, gender: 'F', table: 'girls' }]
+                    .forEach(group => {
+                        group.hot.getData().slice(3).forEach((row, idx) => { // skip headers
+                            const rowIndex = idx + 3;
+                            const name = row[0]?.trim();
+                            if (name && name.toLowerCase().includes(query)) {
+                                matches.push({
+                                    text: name,
+                                    lower: name.toLowerCase(),
+                                    col: 0,
+                                    rowIndex,
+                                    gender: group.gender,
+                                    table: group.table
+                                });
+                            }
+                        });
+                    });
+
+                matches.sort((a, b) => a.text.localeCompare(b.text));
+
+                searchSuggestions.innerHTML = '';
+                suggestionItems = [];
+                selectedSuggestionIndex = -1;
+
+                if (!matches.length) {
+                    searchSuggestions.innerHTML = `<div class="p-2 text-muted">No results found for "${searchBar.value}"</div>`;
+                    return;
+                }
+
+                matches.forEach(match => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item p-2 border-bottom';
+                    div.style.cursor = 'pointer';
+                    div.dataset.table = match.table;
+                    div.dataset.row = match.rowIndex;
+                    div.dataset.col = match.col;
+
+                    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const highlighted = match.text.replace(new RegExp(escaped, 'gi'), '<strong>$&</strong>');
+
+                    const genderClass = match.gender === 'M' ? 'bg-primary text-white' : 'bg-pink text-dark';
+
+                    div.innerHTML = `
+                <span style="flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${highlighted}</span>
+                <span class="badge ${genderClass}">${match.gender}</span>
+            `;
+
+                    div.addEventListener('mouseover', () => {
+                        clearSelection();
+                        div.classList.add('selected');
+                        selectedSuggestionIndex = suggestionItems.length;
+                    });
+
+                    div.addEventListener('mouseout', () => {
+                        if (selectedSuggestionIndex !== suggestionItems.length) {
+                            div.classList.remove('selected');
+                        }
+                    });
+
+                    div.addEventListener('click', handleSuggestionClick);
+                    searchSuggestions.appendChild(div);
+                    suggestionItems.push(div);
+                });
+            }
+
+            function handleSuggestionClick(e) {
+                const item = e.currentTarget;
+                const table = item.dataset.table;
+                const row = parseInt(item.dataset.row);
+                const col = parseInt(item.dataset.col);
+
+                searchSuggestions.style.display = 'none';
+                clearSelection();
+                removeHighlight();
+
+                const hotContainer = document.getElementById(table + 'Hot');
+                hotContainer.scrollIntoView({ behavior: 'smooth' });
+
+                const hot = hotContainer.__hotInstance;
+                hot.scrollViewportTo(row, col);
+                hot.render();
+
+                setTimeout(() => {
+                    const td = hot.getCell(row, col);
+                    if (td) {
+                        td.classList.add('temp-highlight');
+                        currentHighlightedCell = td;
+                        const cellRect = td.getBoundingClientRect();
+                        const offset = cellRect.top + window.scrollY - (window.innerHeight / 2) + (cellRect.height / 2);
+                        window.scrollTo({ top: offset, behavior: 'smooth' });
+                    }
+                }, 300);
+            }
+        });
+
+        // ==================== MAIN CORE VALUES TABLE LOGIC (EXPANDED 28 COLUMNS) ====================
+        document.addEventListener("DOMContentLoaded", () => {
+            const quarters = ['q1', 'q2', 'q3', 'q4'];
+            const fields = ['maka-diyos1', 'maka-diyos2', 'makatao1', 'makatao2', 'makakalikasan', 'makabansa1', 'makabansa2'];
+
+            function createCoreValuesTable(containerId, genderKey) {
+                const container = document.getElementById(containerId);
+                if (!container) return console.error(`${containerId} not found!`);
+
+                // Header rows (displayed as data rows)
+                const headerRows = [
+                    ['Names of Learner', ...Array(28).fill('Quarter')],
+                    ['', ...quarters.flatMap(() => Array(7).fill(null).map((_, i) => Math.floor(i / 7) + 1))],
+                    ['', ...quarters.flatMap(() => ['Maka-Diyos', null, 'Makatao', null, 'Makakalikasan', 'Makabansa', null])]
+                ];
+
+                // Student data rows
+                const cardGen = getCardGen();
+                const sortedStudents = getSortedStudents(cardGen.students?.[genderKey]);
+                let dataRows = sortedStudents.map(s => {
+                    const row = [s.name || ''];
+                    quarters.forEach(q => {
+                        const qData = s.coreValues?.[q] || {};
+                        fields.forEach(f => row.push(qData[f] || ''));
+                    });
+                    return row;
+                });
+
+                while (dataRows.length < 50) {
+                    dataRows.push(Array(29).fill(''));
+                }
+
+                const fullData = [...headerRows, ...dataRows];
+
+                const hot = new Handsontable(container, {
+                    data: fullData,
+                    colHeaders: false,
+                    rowHeaders: true,
+                    stretchH: 'all',
+                    contextMenu: false,
+                    manualRowResize: true,
+                    manualColumnResize: true,
+                    minSpareRows: 0,
+
+                    mergedCells: [
+                        { row: 0, col: 1, rowspan: 1, colspan: 28 }, // Quarter title
+                        ...quarters.flatMap((_, qi) => [
+                            { row: 1, col: 1 + qi * 7, rowspan: 1, colspan: 7 }
+                        ]),
+                        ...quarters.flatMap((_, qi) => {
+                            const offset = 1 + qi * 7;
+                            return [
+                                { row: 2, col: offset + 0, rowspan: 1, colspan: 2 }, // Maka-Diyos
+                                { row: 2, col: offset + 2, rowspan: 1, colspan: 2 }, // Makatao
+                                { row: 2, col: offset + 5, rowspan: 1, colspan: 2 }  // Makabansa
+                            ];
+                        })
+                    ],
+
+                    cells(row, col) {
+                        const cp = {};
+                        if (row < 3) {
+                            cp.readOnly = true;
+                            cp.className = 'htCenter htMiddle';
+                        } else if (col === 0) {
+                            cp.readOnly = true;
+                        } else {
+                            cp.type = 'autocomplete';
+                            cp.source = ['AO', 'SO', 'RO', 'NO'];
+                            cp.strict = true;
+                            cp.allowInvalid = false;
+                        }
+                        return cp;
+                    },
+
+                    afterValidate(isValid, value, row, col) {
+                        if (row < 3 || col === 0) return;
+                        const cell = this.getCell(row, col);
+                        if (cell) {
+                            cell.style.backgroundColor = '';
+                            cell.style.border = '';
+                            cell.title = '';
+                            if (!isValid && value?.trim()) {
+                                cell.style.backgroundColor = '#ffe6e6';
+                                cell.style.border = '1px solid #ff4d4d';
+                                cell.title = "Must be one of: AO, SO, RO, NO";
+                            }
+                        }
+                    },
+
+                    afterInit() {
+                        setTimeout(() => this.validateCells(() => this.render()), 150);
+                    },
+
+                    licenseKey: "non-commercial-and-evaluation",
+
+                    afterChange(changes, source) {
+                        if (!changes || source === 'loadData' || source.startsWith('internal.')) return;
+
+                        let storage = getCardGen();
+                        let students = storage.students[genderKey] || {};
+
+                        changes.forEach(([row, prop, , newValueRaw]) => {
+                            if (row < 3) return;
+                            const col = this.propToCol(prop);
+                            if (col === 0) return;
+
+                            const name = this.getDataAtCell(row, 0)?.trim().toUpperCase();
+                            if (!name) return;
+
+                            if (!students[name]) return;
+
+                            if (!students[name].coreValues) students[name].coreValues = {};
+
+                            const newValue = (newValueRaw || "").trim().toUpperCase();
+                            const subcol = (col - 1) % 7;
+                            const qIndex = Math.floor((col - 1) / 7);
+                            const q = quarters[qIndex];
+                            const field = fields[subcol];
+
+                            if (!students[name].coreValues[q]) students[name].coreValues[q] = {};
+                            students[name].coreValues[q][field] = newValue;
+                        });
+
+                        storage.students[genderKey] = students;
+                        saveGen(storage);
+                    }
+                });
+
+                container.__hotInstance = hot;
+            }
+
+            // Initialize tables
+            createCoreValuesTable("boysHot", "boys");
+            createCoreValuesTable("girlsHot", "girls");
+
+            // Expose clear functions
+            window.showClearConfirmation = function () {
+                askConfirm(
+                    "Confirm Clear Data",
+                    "Are you sure you want to clear Males and Females core values data? This cannot be undone.",
+                    confirmClearData
+                );
+            };
+
+            window.confirmClearData = function () {
+                let d = getCardGen();
+                const quarters = ['q1', 'q2', 'q3', 'q4'];
+                const fields = ['maka-diyos1', 'maka-diyos2', 'makatao1', 'makatao2', 'makakalikasan', 'makabansa1', 'makabansa2'];
+
+                ['boys', 'girls'].forEach(gender => {
+                    Object.values(d.students[gender] || {}).forEach(s => {
+                        s.coreValues = quarters.reduce((acc, q) => {
+                            acc[q] = fields.reduce((facc, f) => ({ ...facc, [f]: "" }), {});
+                            return acc;
+                        }, {});
+                    });
+                });
+
+                saveGen(d);
+                reloadCoreValuesTables();
+                showToast("Core values data cleared!", "success");
+            };
+        });
+
+        // ==================== MODAL & CONFIRMATION UTILITIES ====================
+        function askConfirm(title, message, onConfirm) {
+            document.getElementById('confirmModalTitle').textContent = title;
+            document.getElementById('confirmModalBody').textContent = message;
+
+            const confirmBtn = document.getElementById('confirmModalConfirmBtn');
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+            newConfirmBtn.addEventListener('click', function () {
+                if (onConfirm) onConfirm();
+                const modalElement = document.getElementById('confirmModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) {
+                    modalInstance.hide();
+                    modalElement.addEventListener('hidden.bs.modal', function cleanup() {
+                        forceHideModalBackdrop();
+                        modalElement.removeEventListener('hidden.bs.modal', cleanup);
+                    }, { once: true });
+                }
+            }, { once: true });
+
+            const modalElement = document.getElementById('confirmModal');
+            const modal = new bootstrap.Modal(modalElement, {
+                keyboard: true,
+                backdrop: 'static'
+            });
+            modal.show();
+
+            modalElement.addEventListener('shown.bs.modal', () => {
+                newConfirmBtn.focus();
+            }, { once: true });
+        }
+
+        function forceHideModalBackdrop() {
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) backdrop.remove();
+            document.body.classList.remove('modal-open');
+            document.body.style.removeProperty('overflow');
+            document.body.style.removeProperty('padding-right');
+        }
+
+        document.getElementById('confirmModal')?.addEventListener('shown.bs.modal', function () {
+            const confirmBtn = document.getElementById('confirmModalConfirmBtn');
+            const cancelBtn = document.querySelector('#confirmModal .btn-secondary[data-bs-dismiss="modal"]');
+
+            confirmBtn.focus();
+
+            const handleArrowKeys = (e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (document.activeElement === confirmBtn) {
+                        cancelBtn.focus();
+                    } else {
+                        confirmBtn.focus();
+                    }
+                }
+            };
+
+            this.addEventListener('keydown', handleArrowKeys);
+
+            this.addEventListener('hidden.bs.modal', function cleanup() {
+                this.removeEventListener('keydown', handleArrowKeys);
+                this.removeEventListener('hidden.bs.modal', cleanup);
+            }, { once: true });
+        });
+    </script>
+
+    <script>
+        // ======== ROW TRACKER / HIGHLIGHT FEATURE ========
+        let rowTrackerEnabled = true;
+        let lastHighlighted = null; // { hot: Handsontable, row: number }
+
+        function clearPreviousHighlight() {
+            if (!lastHighlighted) return;
+            const { hot, row } = lastHighlighted;
+
+            for (let col = 0; col < hot.countCols(); col++) {
+                const cell = hot.getCell(row, col);
+                if (cell) {
+                    cell.classList.remove('htRowHighlighted');
+                }
+            }
+            lastHighlighted = null;
+        }
+
+        function highlightEntireRow(hotInstance, row) {
+            if (!rowTrackerEnabled) return;
+            if (row < 0) return;
+
+            clearPreviousHighlight();
+
+            for (let col = 0; col < hotInstance.countCols(); col++) {
+                const cell = hotInstance.getCell(row, col);
+                if (cell) {
+                    cell.classList.add('htRowHighlighted');
+                }
+            }
+
+            lastHighlighted = { hot: hotInstance, row };
+        }
+
+        // Toggle handler
+        const toggle = document.getElementById('rowTrackerToggle');
+        if (toggle) {
+            toggle.addEventListener('change', e => {
+                rowTrackerEnabled = e.target.checked;
+                if (!rowTrackerEnabled) {
+                    clearPreviousHighlight();
+                }
+            });
+        }
+
+        // Hook function
+        function attachRowClickTracker(hot) {
+            if (!hot) return;
+
+            // Cell click → single row highlight
+            hot.addHook('afterSelectionEnd', (rowFrom, colFrom, rowTo, colTo) => {
+                if (rowFrom === rowTo) {
+                    highlightEntireRow(hot, rowFrom);
+                }
+            });
+
+            // Row header click → highlight + select row
+            hot.addHook('afterOnCellMouseDown', (event, coords) => {
+                if (coords.row >= 0 && coords.col === -1) { // row header
+                    highlightEntireRow(hot, coords.row);
+                    hot.selectRows(coords.row);
+                }
+            });
+        }
+
+        // Attach after tables are created
+        setTimeout(() => {
+            const boysHot = document.getElementById('boysHot')?.__hotInstance;
+            const girlsHot = document.getElementById('girlsHot')?.__hotInstance;
+
+            if (boysHot) attachRowClickTracker(boysHot);
+            if (girlsHot) attachRowClickTracker(girlsHot);
+        }, 400); // small delay to ensure Handsontable is ready
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable@14.4.0/dist/handsontable.full.min.js"></script>
+    <script src="SideBar-NavBar.js"></script>
+    <script src="Logout.js"></script>
+    <script src="Toast.js"></script>
+</body>
+
+</html>
