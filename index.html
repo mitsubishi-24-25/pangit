@@ -1,267 +1,504 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CarGen Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarGen Login</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
-<link rel="stylesheet" href="assets/css/root.css">
-<link rel="stylesheet" href="assets/css/Toast.css">
-<script src="assets/js/Logout.js"></script>
+    <link rel="stylesheet" href="assets/css/root.css">
+    <link rel="stylesheet" href="assets/css/Toast.css">
+    <link rel="stylesheet" href="assets/css/admin-style.css">
+    <script src="assets/js/Logout.js"></script>
 
-<style>
-    
-body {
-    background-color: var(--accent-color);
-    font-family: 'Lexend', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    overflow-y: hidden;
-}
+    <style>
+        body {
+            background-color: var(--accent-color);
+            font-family: 'Lexend', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            margin: 0;
+            padding: 16px;
+            box-sizing: border-box;
+        }
 
-.Login_box {
-    position: relative;
-    background-color: var(--secondary-color);
-    border: 2px solid var(--primary-color);
-    border-radius: 15px;
-    padding: 3.5em 2.5em 3em 2.5em;
-    box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.2);
-    max-width: 450px;
-    width: 100%;
-    padding-left: 40px;
-    padding-right: 40px;
-}
+        .page-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background-image: url('assets/images/No BG.png');
+            background-repeat: no-repeat;
+            background-position: center center;
+            opacity: 0.1;
+            pointer-events: none;
+            background-size: 90% auto;
+        }
 
-.Login_header {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--primary-color);
-    width: 160px;
-    height: 70px;
-    border-radius: 0 0 20px 20px;
-    color: var(--secondary-color);
-    font-family: 'Fjalla One', sans-serif;
-    font-size: 2em;
-}
-
-.input_box {
-    position: relative;
-    margin-top: 20px;
-}
-
-.toggle-password {
-    position: absolute;
-    top: 50%;
-    right: 25px;
-    transform: translateY(-50%);
-    cursor: pointer;
-    font-size: 1.2rem;
-    color: var(--primary-color);
-}
-
-.toggle-password:hover {
-    color: var(--primarydark-color);
-}
-
-.input_box1 {
-    position: relative;
-    margin-top: 50px;
-}
-
-.Forgot {
-    cursor: pointer;
-    text-decoration: none;
-    color: var(--primary-color);
-}
-
-.Forgot:hover{
-    color: var(--primarydark-color);
-}
-
-.input-field {
-    width: 100%;
-    height: 55px;
-    border: 2px solid var(--primary-color);
-    border-radius: 30px;
-    outline: none;
-    font-size: 16px;
-    padding: 0 20px;
-}
-
-.input-field:focus{
-    box-shadow: 0 0 0 0.25rem var(--accent-color) !important;
-    border-color: var(--primarydark-color);
-}
-
-.label {
-    position: absolute;
-    top: 15px;
-    left: 20px;
-    font-size: 16px;
-    pointer-events: none;
-    transition: 0.2s;
-    color: var(--shadow);
-}
-
-.input-field:focus ~ .label,
-.input-field:valid ~ .label {
-    top: -10px;
-    left: 20px;
-    font-size: 14px;
-    background-color: var(--primary-color);
-    border-radius: 30px;
-    color: var(--secondary-color);
-    padding: 3px 10px;
-}
-
-.input-submit {
-    width: 100%;
-    height: 50px;
-    background: var(--primary-color);
-    border: none;
-    border-radius: 30px;
-    color: var(--secondary-color);
-    font-size: 16px;
-    cursor: pointer;
-    margin: 20px 0 ;
-}
-
-.input-submit:hover {
-    background: var(--primarydark-color);
-}
-
-.input-submit:active{
-    background-color: var(--primarydark-color) !important;
-}
-
-.input-submit:focus{
-    background-color: var(--primarydark-color) !important;
-    box-shadow: 0 0 0 0.25rem var(--accent-color) !important;
-    border-color: var(--primarydark-color);
-}
-
-@media (max-width: 480px) {
-            .Login_box {
-                margin: 1rem;
-                padding: 2em 1.5em 2.5em;
-                padding-left: 20px;
-                padding-right: 20px;
+        @media (max-width: 991px) and (min-width: 768px) {
+            .page-background {
+                background-size: 100% auto;
             }
+        }
+
+        @media (max-width: 767px) and (min-width: 576px) {
+            .page-background {
+                background-size: 130% auto;
+            }
+        }
+
+        @media (max-width: 575px) {
+            .page-background {
+                background-size: 200% auto;
+            }
+        }
+
+        /* Extra small phones (below 375px) */
+        @media (max-width: 375px) {
+            .page-background {
+                background-size: 250% auto;
+            }
+        }
+
+        .Login_box {
+            position: relative;
+            background-color: var(--secondary-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 3.5em 2.5em 3em 2.5em;
+            box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.2);
+            max-width: 450px;
+            width: 100%;
+            z-index: 10000;
+        }
+
+        .Login_header {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-main);
+            width: 160px;
+            height: 70px;
+            border-radius: 0 0 20px 20px;
+            color: var(--secondary-color);
+            font-family: 'Fjalla One', sans-serif;
+            font-size: 2em;
+        }
+
+        .input_box {
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 25px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .toggle-password:hover {
+            color: var(--primarydark-color);
+        }
+
+        .input_box1 {
+            position: relative;
+            margin-top: 50px;
+        }
+
+        .Forgot {
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--primary-color);
+        }
+
+        .Forgot:hover {
+            color: var(--primarydark-color);
+        }
+
+        .input-field {
+            width: 100%;
+            height: 55px;
+            border: 2px solid var(--primary-color);
+            border-radius: 30px;
+            outline: none;
+            font-size: 16px;
+            padding: 0 20px;
+            background-color: var(--secondary-color);
+        }
+
+        .input-field:focus {
+            box-shadow: 0 0 0 0.25rem var(--accent-color) !important;
+            border-color: var(--primarydark-color);
+        }
+
+        .label {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 16px;
+            pointer-events: none;
+            transition: 0.2s;
+            color: var(--shadow);
+        }
+
+        .input-field:focus~.label,
+        .input-field:valid~.label {
+            top: -10px;
+            left: 20px;
+            font-size: 14px;
+            background: var(--gradient-main);
+            border-radius: 30px;
+            color: var(--secondary-color);
+            padding: 3px 10px;
+        }
+
+        .input-submit {
+            width: 100%;
+            height: 50px;
+            background: var(--gradient-main);
+            border: none;
+            border-radius: 30px;
+            color: var(--secondary-color);
+            font-size: 16px;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+
+        .input-submit:hover {
+            background: var(--gradient-main-hover);
+        }
+
+        .input-submit:active {
+            background-color: var(--primarydark-color) !important;
+        }
+
+        .input-submit:focus {
+            background-color: var(--primarydark-color) !important;
+            box-shadow: 0 0 0 0.25rem var(--accent-color) !important;
+            border-color: var(--primarydark-color);
+        }
+
+        .logos-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .logo-circle {
+            width: clamp(100px, 20vw, 138px);
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-main);
+            overflow: hidden;
+        }
+
+        .logo-circle img {
+            width: 85%;
+            height: 85%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* FIXED wrapper class - para hindi na kailangan mag-scroll */
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 480px;
+            margin: auto;
+            /* INADD: Para mag-adjust ang height based sa content */
+            height: auto;
+            max-height: 100vh;
+            /* Para sure na hindi lalagpas sa screen */
+        }
+
+        /* Mobile-specific fixes */
+        @media (max-width: 576px) {
+            body {
+                padding: 12px;
+                align-items: center;
+                /* INADD: Para iwas scroll */
+                overflow-y: hidden;
+                /* Para pwede pa rin mag-scroll kung sobrang liit ng screen */
+            }
+
+            .content-wrapper {
+                gap: 5px;
+                /* Binawasan ang gap */
+                justify-content: center;
+                /* Sure na naka-center */
+                height: auto;
+                min-height: fit-content;
+            }
+
+            .logos-container {
+                margin-bottom: 10px;
+                /* Binawasan ang bottom margin */
+                gap: 1rem;
+            }
+
+            .logo-circle {
+                width: clamp(130px, 22vw, 110px);
+                /* Bahagyang pinaliit */
+            }
+
+            .Login_box {
+                padding: 2.5em 1.2em 2em 1.2em;
+                margin: 0;
+            }
+
             .Login_header {
                 width: 140px;
                 height: 60px;
-                font-size: 1.5em;
+                font-size: 1.8em;
             }
-            .toast-message {
-                top: 10px;
-                font-size: 16px;
-                padding: 8px 16px;
+
+            .input_box1 {
+                margin-top: 35px;
+                /* Binawasan ang top margin */
+            }
+
+            .input_box {
+                margin-top: 15px;
+                /* Binawasan ang top margin */
+            }
+
+            .input-field {
+                height: 48px;
+                /* Pinababa ang height */
+                font-size: 15px;
+            }
+
+            .label {
+                font-size: 15px;
+                top: 12px;
+            }
+
+            .input-field:focus~.label,
+            .input-field:valid~.label {
+                font-size: 12px;
+                top: -9px;
+                padding: 2px 8px;
+            }
+
+            .toggle-password {
+                right: 18px;
+                font-size: 1rem;
+            }
+
+            .input-submit {
+                height: 42px;
+                /* Pinababa ang height */
+                font-size: 15px;
+                margin: 12px 0 5px 0;
+                /* Binawasan ang margin */
             }
         }
-</style>
+
+        /* For very small phones */
+        @media (max-width: 375px) {
+            body {
+                padding: 8px;
+            }
+
+            .content-wrapper {
+                gap: 3px;
+            }
+
+            .logo-circle {
+                width: clamp(70px, 20vw, 90px);
+            }
+
+            .logos-container {
+                margin-bottom: 8px;
+                gap: 0.8rem;
+            }
+
+            .Login_box {
+                padding: 2.2em 1em 1.8em 1em;
+            }
+
+            .Login_header {
+                width: 110px;
+                height: 45px;
+                font-size: 1.4em;
+            }
+
+            .input_box1 {
+                margin-top: 30px;
+            }
+
+            .input_box {
+                margin-top: 12px;
+            }
+
+            .input-field {
+                height: 45px;
+                padding: 0 15px;
+            }
+
+            .label {
+                font-size: 14px;
+                top: 11px;
+                left: 15px;
+            }
+
+            .input-field:focus~.label,
+            .input-field:valid~.label {
+                font-size: 11px;
+                top: -8px;
+                left: 15px;
+            }
+
+            .toggle-password {
+                right: 15px;
+                font-size: 0.95rem;
+            }
+
+            .input-submit {
+                height: 40px;
+                font-size: 14px;
+                margin: 10px 0 3px 0;
+            }
+        }
+
+        /* Remove unused classes */
+        .login-container,
+        .login-header {
+            display: none;
+        }
+    </style>
 </head>
+
 <body>
+    <div class="page-background"></div>
 
-<div class="Login_box">
+    <div class="content-wrapper">
+        <!-- Logos positioned above the login box -->
+        <div class="logos-container">
+            <div class="logo-circle">
+                <img src="Assets/Images/CFGHS.png" alt="Logo 1">
+            </div>
+            <div class="logo-circle">
+                <img src="Assets/Images/CardGen Logo.png" alt="Logo 2">
+            </div>
+        </div>
 
-    <div class="Login_header text-center">Log In</div>
+        <!-- Login box -->
+        <div class="Login_box">
+            <div class="Login_header text-center">Log In</div>
 
-    <div class="input_box1">
-        <input type="text" class="input-field form-control" id="username" required>
-        <label class="label">Username</label>
+            <div class="input_box1">
+                <input type="text" class="input-field form-control" id="username" required>
+                <label class="label">Username</label>
+            </div>
+
+            <div class="input_box">
+                <input type="password" class="input-field form-control" id="password" required>
+                <label class="label">Password</label>
+                <i class="bi bi-eye toggle-password" id="togglePassword"></i>
+            </div>
+
+            <button class="input-submit btn btn-primary" onclick="login()">Login</button>
+        </div>
     </div>
 
-    <div class="input_box">
-        <input type="password" class="input-field form-control" id="password" required>
-        <label class="label">Password</label>
-        <i class="bi bi-eye toggle-password" id="togglePassword"></i>
-    </div>
+    <script>
+        const users = [
+            { username: "Adviser", password: "adviser123" },
+            { username: "Sub-Teacher", password: "teacher123" }
+        ];
 
-    <button class="input-submit btn btn-primary" onclick="login()">Login</button>
-</div>
+        function login() {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
 
-<script>
+            const user = users.find(u => u.username === username && u.password === password);
 
-function login() {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
+            if (user) {
+                localStorage.setItem("currentUser", JSON.stringify(user));
 
-    const user = users.find(u => u.username === username && u.password === password);
-
-    if (user) {
-        localStorage.setItem("currentUser", JSON.stringify(user));
-
-        if (username === "Adviser") {
-            window.location.href = "pages/Student_Information.html";
-        } else if (username === "Sub-Teacher") {
-            window.location.href = "dashboard_adviser.html";
+                if (username === "Adviser") {
+                    window.location.href = "pages/Student_Information.html";
+                } else if (username === "Sub-Teacher") {
+                    window.location.href = "dashboard_adviser.html";
+                }
+            } else if (username === "" && password === "") {
+                showToast("Enter Username and Password");
+            } else if (username === "") {
+                showToast("Enter Username");
+            } else if (password === "") {
+                showToast("Enter Password");
+            } else {
+                showToast("Invalid username or password!");
+            }
         }
-    } else if (username === "" && password === "") {
-        showToast("Enter Username and Password");
-    } else if (username === "") {
-        showToast("Enter Username");
-    } else if (password === "") {
-        showToast("Enter Password");
-    } else {
-        showToast("Invalid username or password!");
-    }
-}
 
-window.onload = () => {
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    if (currentUser) {
-        if (currentUser.username === "Adviser") {
-            window.location.href = "Dashboard.html";
-        } else if (currentUser.username === "Sub-Teacher") {
-            window.location.href = "dashboard_adviser.html";
-        }
-    }
-};
+        window.onload = () => {
+            const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (currentUser) {
+                if (currentUser.username === "Adviser") {
+                    window.location.href = "Dashboard.html";
+                } else if (currentUser.username === "Sub-Teacher") {
+                    window.location.href = "dashboard_adviser.html";
+                }
+            }
+        };
 
-const usernameInput = document.getElementById("username");
-const passwordInput = document.getElementById("password");
+        const usernameInput = document.getElementById("username");
+        const passwordInput = document.getElementById("password");
 
-usernameInput.addEventListener("keydown", function(e) {
-    if(e.key === "Enter") {
-        e.preventDefault();
-        passwordInput.focus();
-    }
-});
+        usernameInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                passwordInput.focus();
+            }
+        });
 
-passwordInput.addEventListener("keydown", function(e) {
-    if(e.key === "Enter") {
-        login();
-        passwordInput.blur();
-    }
-});
+        passwordInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                login();
+                passwordInput.blur();
+            }
+        });
 
-const togglePasswordIcon = document.getElementById("togglePassword");
-const passwordInputField = document.getElementById("password");
+        const togglePasswordIcon = document.getElementById("togglePassword");
+        const passwordInputField = document.getElementById("password");
 
-togglePasswordIcon.addEventListener("click", function () {
-    const type = passwordInputField.getAttribute("type") === "password" ? "text" : "password";
-    passwordInputField.setAttribute("type", type);
+        togglePasswordIcon.addEventListener("click", function () {
+            const type = passwordInputField.getAttribute("type") === "password" ? "text" : "password";
+            passwordInputField.setAttribute("type", type);
+            this.classList.toggle("bi-eye");
+            this.classList.toggle("bi-eye-slash");
+        });
+    </script>
 
-    this.classList.toggle("bi-eye");
-    this.classList.toggle("bi-eye-slash");
-});
-
-</script>
-
-
-<script src="assets/js/Toast.js"></script>
-<script src="assets/js/Actions Disabled.js"></script>
-
+    <script src="assets/js/Toast.js"></script>
+    <script src="assets/js/Actions Disabled.js"></script>
 </body>
+
 </html>

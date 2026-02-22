@@ -10,7 +10,7 @@
   --lowPrimary: color-mix(in srgb, var(--primary-color) 15%, transparent);
   --secondary-color: #ffffff;
   --dark-mode-color: #000000;
-  --background-color: #f0f4f8;
+  --background-color: linear-gradient(160deg, rgb(240, 244, 248) 0%, rgb(232, 244, 253) 100%);
   --danger: #8f0000;
   --gradient-main: linear-gradient(
     135deg,
