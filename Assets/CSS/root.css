@@ -1,0 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Fjalla+One&family=Lexend:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700&display=swap");
+
+:root {
+  --primary-color: #0078e9;
+  --light-primary-color: #00c4ff;
+  --primarydark-color: color-mix(in srgb, var(--primary-color) 80%, black);
+  --accent-color: color-mix(in srgb, var(--primary-color) 40%, white);
+  --lowPrimary: color-mix(in srgb, var(--primary-color) 15%, transparent);
+  --secondary-color: #ffffff;
+  --dark-mode-color: #000000;
+  --background-color: #f0f4f8;
+  --danger: #8f0000;
+  --gradient-main: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    var(--light-primary-color) 100%
+  );
+  --gradient-main-hover: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary-color) 92%, black) 0%,
+    color-mix(in srgb, var(--light-primary-color) 92%, black) 100%
+  );
+  --gradient-card: linear-gradient(145deg, #ffffff 0%, #f0f8ff 100%);
+  --card-shadow: 0 4px 20px rgba(0, 120, 233, 0.12);
+  --card-shadow-hover: 0 8px 30px rgba(0, 120, 233, 0.22);
+}
+
+.navbar span {
+  cursor: pointer;
+}
