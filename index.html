@@ -530,7 +530,7 @@
                 localStorage.setItem("currentUser", JSON.stringify(user));
 
                 if (username === "Adviser") {
-                    window.location.href = "Student_Information.html";
+                    window.location.href = "pages/Student_Information.html";
                 } else if (username === "Sub-Teacher") {
                     window.location.href = "dashboard_adviser.html";
                 }
@@ -549,7 +549,7 @@
             const currentUser = JSON.parse(localStorage.getItem("currentUser"));
             if (currentUser) {
                 if (currentUser.username === "Adviser") {
-                    window.location.href = "Dashboard.html";
+                    window.location.href = "pages/Student_Information.html";
                 } else if (currentUser.username === "Sub-Teacher") {
                     window.location.href = "dashboard_adviser.html";
                 }
