@@ -694,7 +694,7 @@
 
                     html2Core += row(name, q3, q4, fin);
                 }
-                document.getElementById('core2-body').innerHTML = html2Core || '<tr><td colspan="4" style="text-align:center; color:#999;">No data entered yet</td></tr>';
+                document.getElementById('core2-body').innerHTML = html2Core || '';
 
                 let html2Applied = '';
                 for (let i = 1; i <= 8; i++) {
@@ -713,7 +713,7 @@
 
                     html2Applied += row(name, q3, q4, fin);
                 }
-                document.getElementById('applied2-body').innerHTML = html2Applied || '<tr><td colspan="4" style="text-align:center; color:#999;">No data entered yet</td></tr>';
+                document.getElementById('applied2-body').innerHTML = html2Applied || '';
 
                 setText("GenAve2", sem2.genAve || sem2.generalAverage || '');
 
